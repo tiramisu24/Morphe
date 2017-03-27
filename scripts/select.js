@@ -4,17 +4,17 @@ const glasses = document.getElementById('glasses');
 var ctx = canvas.getContext('2d');
 
 const testImage= document.getElementById('test-image');
-
+// testImage.crossOrigin = "Anonymous";
 
 testImage.onload = function() {
 
   ctx.drawImage(this, 0, 0, 600,500);
-
+  debugger;
+  const pixels = ctx.getImageData(0,0,canvas.width,canvas.height);
+  console.log(pixels);
 
 
 };
-const pixels = ctx.getImageData(0,0,canvas.width,canvas.height);
-console.log(pixels);
 // var comp = ccv.detect_objects({ "canvas" : (canvas),
 //                 "cascade" : cascade,
 //                 "interval" : 5,
