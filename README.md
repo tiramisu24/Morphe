@@ -43,7 +43,8 @@ In addition to the webpack entry file, there will be three scripts involved in t
 - Ensure the shapes correctly stretches and attaches to landmarks
 
 **Day 3**: Learn canvas and draw the makeup.
-- Draw the shapes (lips, filters for cheecks and eyebrows)
+- Draw the shapes (lips, filters for checks and eyebrows)
+- Drawings can layer
 - Ensure the shapes correctly stretches and attaches to landmarks
 
 **Day 4**: Enable camera Style page:
@@ -57,3 +58,4 @@ In addition to the webpack entry file, there will be three scripts involved in t
 
 - [ ] Allow live-streaming
 - [ ] More features such as glasses and hats
+- [ ] Halloween makeup
