@@ -20,37 +20,40 @@ and the About modal.  Game controls will include Start, Stop, and Reset buttons 
 
 ### Architecture and Technologies
 
-
-
-
 - Vanilla JavaScript for overall structure and game logic,
-- Cvv.js for face detection
-- `Easel.js` with `HTML5 Canvas` for DOM manipulation and rendering,
+- clmtrackr.js for face detection
+- `HTML5 Canvas` for DOM manipulation and rendering,
 - Webpack to bundle and serve up the various scripts.
 
 In addition to the webpack entry file, there will be three scripts involved in this project:
 
 `select.js`: this script will handle the logic detecting face and landmarks.
-`Easel.js` elements and rendering them to the DOM.
-
 `paint.js`: this script will handle logic on what to paint on the picture.
 
 
 ### Implementation Timeline
 
-**Day 1**: Setup all necessary Node modules. Write a basic entry file. Check that face landmarks are correct.
+**Day 1**: Setup all necessary Node modules.
+  -Write a basic entry file.
+  -Check that face landmarks are correct.
 
-**Day 2-3**: Learn Easel/canvas and draw the makeup.
 
-- Draw the shapes (eyeliner, lips, filters for cheecks and eyebrows)
+**Day 2**: Learn canvas and draw the makeup.
+- Draw the shapes (eyeliner)
+- Ensure the shapes correctly stretches and attaches to landmarks
+
+**Day 3**: Learn canvas and draw the makeup.
+- Draw the shapes (lips, filters for cheecks and eyebrows)
 - Ensure the shapes correctly stretches and attaches to landmarks
 
 **Day 4**: Enable camera Style page:
 
 - enable webcamera to take picture
-- buttons to change filters
+- color styling
+- page styling
 
 
 ### Bonus features
 
-- [ ] Allow live-streaming (will need to change library to dibs so that the face detection runs in under 20ms)
+- [ ] Allow live-streaming
+- [ ] More features such as glasses and hats

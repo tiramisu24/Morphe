@@ -4,19 +4,22 @@
     <meta charset="utf-8">
     <title>Test video</title>
     <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script src="js/clmtrackr.js"></script>
+    <script src="js/model_pca_20_svm.js"></script>
 
 
 
 
   </head>
   <body>
-    <img id ="test-image" src="./i/test_image.jpg"
-         height="500" style="display:none">
-    <img src="https://cdn.pixabay.com/photo/2014/04/02/16/15/glasses-306695_1280.png" id="glasses" style="display:none">
-    <canvas id="output" width="600" height="500"></canvas>
+    <video id="inputVideo" width="400" height="300" autoplay loop>
+      <source src="./media/somevideo.ogv" type="video/ogg"/>
+    </video>
 
-    <script type="text/javascript" src="scripts/ccv.js"></script>
-    <script type="text/javascript" src="scripts/face.js"></script>
+
+    <canvas id="output" width="400" height="300"></canvas>
+
+
     <script type="text/javascript" src="scripts/select.js"></script>
 
   </body>

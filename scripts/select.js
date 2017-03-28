@@ -1,17 +1,40 @@
+var videoInput = document.getElementById('inputVideo');
 
-const canvas = document.getElementById('output');
-const glasses = document.getElementById('glasses');
-var ctx = canvas.getContext('2d');
+var ctracker = new clm.tracker();
+debugger;
+ctracker.init(pModel);
+ctracker.start(videoInput);
 
-const testImage= document.getElementById('test-image');
-// testImage.crossOrigin = "Anonymous";
-
-testImage.onload = function() {
-
-  ctx.drawImage(this, 0, 0, 600,500);
+function positionLoop() {
+  requestAnimationFrame(positionLoop);
+  var positions = ctracker.getCurrentPosition();
   debugger;
-  const pixels = ctx.getImageData(0,0,canvas.width,canvas.height);
-  console.log(pixels);
+  // positions = [[x_0, y_0], [x_1,y_1], ... ]
+  // do something with the positions ...
+}
+positionLoop();
+
+
+//
+// const canvas = document.getElementById('output');
+// const glasses = document.getElementById('glasses');
+// var ctx = canvas.getContext('2d');
+//
+// const testImage= document.getElementById('test-image');
+//
+// testImage.onload = function() {
+//   testImage.crossOrigin = "Anonymous";
+//
+//   ctx.drawImage(this, 0, 0, 600,500);
+//
+//   var comp = ccv.detect_objects({ "canvas" : (canvas),
+//                 "cascade" : cascade,
+//                 "interval" : 5,
+//                 "min_neighbors" : 1 });
+//
+//   debugger;
+//   const pixels = ctx.getImageData(0,0,canvas.width,canvas.height);
+//   console.log(pixels);
 
 
 };
