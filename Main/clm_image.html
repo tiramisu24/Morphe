@@ -1,10 +1,9 @@
 <!doctype html>
 <html lang="en">
 	<head>
-		<title>Face Tracker</title>
+		<title>Image</title>
 		<meta charset="utf-8">
 		<style>
-			@import url(https://fonts.googleapis.com/css?family=Lato:300italic,700italic,300,700);
 
 			body {
 				font-family: 'Lato';
@@ -100,6 +99,7 @@
 
 		<script type="text/javascript" src="../js/features/draw_eyebrows.js"></script>
 		<script type="text/javascript" src="../js/features/draw_lips.js"></script>
+		<script type="text/javascript" src="../js/features/draw_eyeliner.js"></script>
 
 
 		<div id="content">
@@ -175,8 +175,9 @@
 
 				// detect if tracker has converged
 				document.addEventListener("clmtrackrConverged", function(event) {
-		      drawRightBrow(pos.slice(15,19),canvas);
-		      drawLeftBrow(pos.slice(19,23),canvas);
+		      drawEyebrows(pos.slice(15,19),pos.slice(19,23),canvas);
+					const eyelinerPos = (pos.slice(28,32).concat(pos.slice(67,71)).concat([pos[15]]))
+					drawRightEyeliner(eyelinerPos, canvas);
 					drawLips(pos.slice(44,62),canvas);
 					document.getElementById('convergence').innerHTML = "CONVERGED";
 					document.getElementById('convergence').style.backgroundColor = "#00FF00";
