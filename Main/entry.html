@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Morphe</title>
+
+    <!-- Taken From clmtrackr  -->
+    <script type="text/javascript">
+
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-32642923-1']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+
+    </script>
+
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+
+    <!-- All clm files need for face landmark detection -->
+    <script src="./ext_js/utils.js"></script>
+		<script src="./ext_js/jsfeat-min.js"></script>
+		<script src="./ext_js/frontalface.js"></script>
+		<script src="./ext_js/jsfeat_detect.js"></script>
+		<script src="./ext_js/numeric-1.2.6.min.js"></script>
+		<script src="./ext_js/mosse.js"></script>
+		<script src="./ext_js/left_eye_filter.js"></script>
+		<script src="./ext_js/right_eye_filter.js"></script>
+		<script src="./ext_js/nose_filter.js"></script>
+		<script src="../models/model_pca_20_svm.js"></script>
+		<script src="../js/clm.js"></script>
+		<script src="../js/svmfilter_webgl.js"></script>
+		<script src="../js/svmfilter_fft.js"></script>
+		<script src="../js/mossefilter.js"></script>
+		<script src="./ext_js/Stats.js"></script>
+
+  </head>
+  <body>
+    <div class="intro">
+      <h1>Welcome to Morphe</h1>
+    </div>
+
+    <div class="container">
+
+      <video id="video" width="700" height="500" preload="auto" loop>
+      </video>
+
+
+      <canvas id="canvas" width="700" height="500"></canvas>
+
+      <button id ="start-button" onclick="startVideo()">Start</button>
+
+
+      <script type="text/javascript" src="../js/features/start_video.js"></script>
+      <script type="text/javascript" src="../js/features/draw_eyebrows.js"></script>
+    </div>
+  </body>
+</html>
