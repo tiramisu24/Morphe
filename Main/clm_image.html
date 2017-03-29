@@ -99,6 +99,7 @@
 		<script src="./ext_js/Filesaver.min.js"></script>
 
 		<script type="text/javascript" src="../js/features/draw_eyebrows.js"></script>
+		<script type="text/javascript" src="../js/features/draw_lips.js"></script>
 
 
 		<div id="content">
@@ -176,6 +177,7 @@
 				document.addEventListener("clmtrackrConverged", function(event) {
 		      drawRightBrow(pos.slice(15,19),canvas);
 		      drawLeftBrow(pos.slice(19,23),canvas);
+					drawLips(pos.slice(44,62),canvas);
 					document.getElementById('convergence').innerHTML = "CONVERGED";
 					document.getElementById('convergence').style.backgroundColor = "#00FF00";
 					// stop drawloop

@@ -1,0 +1,4 @@
+const drawRightEyeliner = (pos,canvas) => {
+  
+
+}
