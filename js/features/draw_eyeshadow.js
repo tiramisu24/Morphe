@@ -1,8 +1,8 @@
-const drawEyeliner = (pos1, pos2, canvas) => {
-  drawEye(pos1,canvas);
-  drawEye(pos2,canvas);
+const drawEyeshadow = (pos1, pos2, canvas) => {
+  drawEyedow(pos1,canvas);
+  drawEyedow(pos2,canvas);
 };
-const drawEye = (pos, canvas) => {
+const drawEyedow = (pos, canvas) => {
   const x1 = pos[2][0];
   const y1 = pos[2][1];
   const x2 = pos[5][0];
@@ -18,10 +18,10 @@ const drawEye = (pos, canvas) => {
 
   const yOffset = 6;
   let y6,y7,y8,y9,y10;
-  y6 = y5 - yOffset;
-  y7 = y4 - yOffset;
-  y8 = y3 - yOffset;
-  y9 = y2 - yOffset;
+  y6 = y5 - yOffset*8;
+  y7 = y4 - yOffset*6;
+  y8 = y3 - yOffset*4;
+  y9 = y2 - yOffset*2;
   y10 = y1 - yOffset;
 
   let bx = (eyebrowx-x5)/3 + x5;
@@ -43,6 +43,6 @@ const drawEye = (pos, canvas) => {
   ctx.closePath();
   ctx.fillStyle="#000";
 
-  ctx.fill();
+  ctx.stroke();
 
 };

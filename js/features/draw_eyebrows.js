@@ -19,7 +19,9 @@ const drawBrow = (pos,canvas, yOffset, xOffset) => {
   const x = x2 + (length/4);
   const y = y2 - (Math.sqrt(3)/2 * length/4);
   // Cubic curves example
-
+  ctx.shadowColor = "rgb(114, 66, 2)";
+  ctx.shadowOffsetX = 0;
+  ctx.shadowOffsetY = 0;
   ctx.beginPath();
  //4
   ctx.moveTo(x4, y4); //4
@@ -31,7 +33,10 @@ const drawBrow = (pos,canvas, yOffset, xOffset) => {
   ctx.lineTo( (x3*2+x2)/3, (y3+y2)/2);
   ctx.lineTo( x2, y2-yOffset); //2
   ctx.lineTo( x4-xOffset, y4+yOffset);
-    ctx.closePath();
+  ctx.closePath();
+
+  ctx.fillStyle = "rgba(114, 66, 2, .7)";
+  ctx.shadowBlur = yOffset*4;
 
   ctx.fill();
 };

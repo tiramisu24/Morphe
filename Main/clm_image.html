@@ -97,9 +97,11 @@
 		<script src="./ext_js/BlobBuilder.min.js"></script>
 		<script src="./ext_js/Filesaver.min.js"></script>
 
+		<script type="text/javascript" src="../js/features/cardinal.js"></script>
 		<script type="text/javascript" src="../js/features/draw_eyebrows.js"></script>
 		<script type="text/javascript" src="../js/features/draw_lips.js"></script>
 		<script type="text/javascript" src="../js/features/draw_eyeliner.js"></script>
+		<script type="text/javascript" src="../js/features/draw_eyeshadow.js"></script>
 
 
 		<div id="content">
@@ -157,7 +159,7 @@
 					canvasCC.clearRect(0, 0, 720, 576);
 					pos = ctrack.getCurrentPosition();
 					if (ctrack.getCurrentPosition()) {
-						ctrack.draw(canvas);
+						// ctrack.draw(canvas);
 					}
 				}
 
@@ -176,8 +178,11 @@
 				// detect if tracker has converged
 				document.addEventListener("clmtrackrConverged", function(event) {
 		      drawEyebrows(pos.slice(15,19),pos.slice(19,23),canvas);
-					const eyelinerPos = (pos.slice(28,32).concat(pos.slice(67,71)).concat([pos[15]]))
-					drawRightEyeliner(eyelinerPos, canvas);
+					const eyelinerPosL = (pos.slice(28,32).concat(pos.slice(67,71)).concat([pos[15]]));
+					const eyelinerPosR = (pos.slice(23,27).concat(pos.slice(63,67)).concat([pos[19]]));
+					// drawEyeliner(eyelinerPosL,eyelinerPosR, canvas);
+					drawEyeshadow(eyelinerPosL,eyelinerPosR, canvas);
+
 					drawLips(pos.slice(44,62),canvas);
 					document.getElementById('convergence').innerHTML = "CONVERGED";
 					document.getElementById('convergence').style.backgroundColor = "#00FF00";
