@@ -44,8 +44,7 @@ const drawEye = (pos, canvas) => {
 
   ctx.closePath();
   ctx.fillStyle="#000";
-
-  console.log(ctx);
+  ctx.filter = 'blur(8px)';
 
   ctx.fill();
 
