@@ -1,10 +1,9 @@
-const drawLips = (pos,canvas) => {
+const drawHighlight = (pos, canvas) => {
   const ctx = canvas.getContext('2d');
-  // drawLines(ctx, pos);
   ctx.beginPath();
   ctx.moveTo(pos[0][0], pos[0][1]);
-  let x,y;
 
+  let x,y;
   pos.map((point,idx) => {
     x = point[0];
     y = point[1];
@@ -16,13 +15,10 @@ const drawLips = (pos,canvas) => {
       ctx.lineTo(pos[6][0], pos[6][1]);
     }
   });
-  // // console.log("before closePath");
   ctx.closePath();
-  ctx.fillStyle="#000";
-  // console.log("in lips");
+  ctx.lineWidth=10;
+  ctx.fillStyle="white";
 
-  ctx.fillStyle = "rgba(244,66,66,.7)";
-
-
+  ctx.filter = 'blur(5px)';
   ctx.fill();
 };

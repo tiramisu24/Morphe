@@ -102,6 +102,8 @@
 		<script type="text/javascript" src="../js/features/draw_lips.js"></script>
 		<script type="text/javascript" src="../js/features/draw_eyeliner.js"></script>
 		<script type="text/javascript" src="../js/features/draw_eyeshadow.js"></script>
+		<script type="text/javascript" src="../js/features/draw_blush.js"></script>
+		<script type="text/javascript" src="../js/features/draw_highlight.js"></script>
 
 
 		<div id="content">
@@ -180,10 +182,11 @@
 		      drawEyebrows(pos.slice(15,19),pos.slice(19,23),canvas);
 					const eyelinerPosL = (pos.slice(28,32).concat(pos.slice(67,71)).concat([pos[15]]));
 					const eyelinerPosR = (pos.slice(23,27).concat(pos.slice(63,67)).concat([pos[19]]));
-					// drawEyeliner(eyelinerPosL,eyelinerPosR, canvas);
 					drawEyeshadow(eyelinerPosL,eyelinerPosR, canvas);
-
+					drawEyeliner(eyelinerPosL,eyelinerPosR, canvas);
 					drawLips(pos.slice(44,62),canvas);
+					// drawBlush([pos[39], pos[13]], [pos[1], pos[35]], canvas)
+					drawHighlight([pos[33], pos[41], pos[62]], canvas);
 					document.getElementById('convergence').innerHTML = "CONVERGED";
 					document.getElementById('convergence').style.backgroundColor = "#00FF00";
 					// stop drawloop

@@ -27,6 +27,8 @@ const drawEye = (pos, canvas) => {
   let bx = (eyebrowx-x5)/3 + x5;
   let by = (eyebrowy-y4)/4 + y5;
   const ctx = canvas.getContext('2d');
+
+
   ctx.beginPath();
   ctx.moveTo(x1, y1);
   ctx.lineTo(x2, y2);
@@ -42,6 +44,8 @@ const drawEye = (pos, canvas) => {
 
   ctx.closePath();
   ctx.fillStyle="#000";
+
+  console.log(ctx);
 
   ctx.fill();
 

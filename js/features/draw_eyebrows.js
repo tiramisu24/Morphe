@@ -1,5 +1,5 @@
 const drawEyebrows = (pos1, pos2, canvas) => {
-  drawBrow(pos1, canvas ,14, 6);
+  drawBrow(pos1, canvas ,14, 16);
   drawBrow(pos2, canvas , 14, -16);
 };
 const drawBrow = (pos,canvas, yOffset, xOffset) => {
@@ -19,9 +19,9 @@ const drawBrow = (pos,canvas, yOffset, xOffset) => {
   const x = x2 + (length/4);
   const y = y2 - (Math.sqrt(3)/2 * length/4);
   // Cubic curves example
-  ctx.shadowColor = "rgb(114, 66, 2)";
-  ctx.shadowOffsetX = 0;
-  ctx.shadowOffsetY = 0;
+  // ctx.shadowColor = "rgb(114, 66, 2)";
+  // ctx.shadowOffsetX = 0;
+  // ctx.shadowOffsetY = 0;
   ctx.beginPath();
  //4
   ctx.moveTo(x4, y4); //4
@@ -35,8 +35,11 @@ const drawBrow = (pos,canvas, yOffset, xOffset) => {
   ctx.lineTo( x4-xOffset, y4+yOffset);
   ctx.closePath();
 
-  ctx.fillStyle = "rgba(114, 66, 2, .7)";
-  ctx.shadowBlur = yOffset*4;
+  ctx.fillStyle = "rgba(114, 66, 2, 1)";
+  // ctx.shadowBlur = yOffset*2;
+  ctx.filter = `blur(${xOffset/3}px)`;
 
+
+  // console.log(ctx);
   ctx.fill();
 };
