@@ -1,4 +1,4 @@
-const drawHighlight = (pos, canvas) => {
+const drawHighlight = (pos, canvas, xOffset) => {
   const ctx = canvas.getContext('2d');
   ctx.beginPath();
   ctx.moveTo(pos[0][0], pos[0][1]);
@@ -7,16 +7,10 @@ const drawHighlight = (pos, canvas) => {
 
   ctx.closePath();
   ctx.lineWidth=10;
-  ctx.strokeStyle="white";
-  let x1,y1,x2,y2;
-  x1 = pos[3][0];
-  x2 = pos[4][0];
-  y1 = pos[3][1];
-  y2 = pos[4][1];
-  const browDistance = Math.sqrt(Math.pow((x2-x1),2) + Math.pow((y2-y1),2))/15;
-  console.log(browDistance);
-  // ctx.filter = `blur(${browDistance}px)`;
-  // ctx.filter = `blur(${2}px)`;
+  ctx.strokeStyle="black";
+  ctx.fillStyle="#000";
+
+  ctx.filter = `blur(${0}px)`;
   console.log(ctx);
   ctx.stroke();
 };

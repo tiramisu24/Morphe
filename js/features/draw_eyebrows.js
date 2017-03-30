@@ -1,6 +1,6 @@
-const drawEyebrows = (pos1, pos2, canvas) => {
-  drawBrow(pos1, canvas ,14, 16);
-  drawBrow(pos2, canvas , 14, -16);
+const drawEyebrows = (pos1, pos2, canvas, yOffset, xOffset) => {
+  drawBrow(pos1, canvas ,yOffset, xOffset);
+  drawBrow(pos2, canvas , yOffset, -xOffset);
 };
 const drawBrow = (pos,canvas, yOffset, xOffset) => {
   const ctx = canvas.getContext('2d');
@@ -37,8 +37,7 @@ const drawBrow = (pos,canvas, yOffset, xOffset) => {
 
   ctx.fillStyle = "rgba(114, 66, 2, 1)";
   // ctx.shadowBlur = yOffset*2;
-  ctx.filter = `blur(${xOffset/3}px)`;
-
+  ctx.filter = `blur(${Math.floor(xOffset/3)}px)`;
 
   // console.log(ctx);
   ctx.fill();

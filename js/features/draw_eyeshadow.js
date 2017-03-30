@@ -1,8 +1,9 @@
-const drawEyeshadow = (pos1, pos2, canvas) => {
-  drawEyedow(pos1,canvas, 30);
-  drawEyedow(pos2,canvas, -30);
+const drawEyeshadow = (pos1, pos2, canvas, yOffset, xOffset) => {
+  // console.log('yOffset', yOffset);
+  drawEyedow(pos1,canvas, yOffset/2, xOffset *2);
+  drawEyedow(pos2,canvas, yOffset/2, -xOffset *2);
 };
-const drawEyedow = (pos, canvas, xOffset) => {
+const drawEyedow = (pos, canvas, yOffset,xOffset) => {
   const x1 = pos[2][0];
   const y1 = pos[2][1];
   const x2 = pos[5][0];
@@ -16,7 +17,6 @@ const drawEyedow = (pos, canvas, xOffset) => {
   const eyebrowx = pos[8][0];
   const eyebrowy = pos[8][1];
 
-  const yOffset = 6;
   let y6,y7,y8,y9,y10;
   y6 = y5 - yOffset*5;
   y7 = y4 - yOffset*4;
@@ -45,17 +45,15 @@ const drawEyedow = (pos, canvas, xOffset) => {
   ctx.lineTo(x1, y10);
 
   ctx.closePath();
-
+  // console.log(yOffset);
   const grd = ctx.createLinearGradient(x1, y1, bx, y6);
     // light blue
     grd.addColorStop(0, '#8ED6FF');
     // dark blue
     grd.addColorStop(1, '#004CB3');
     ctx.fillStyle = grd;
-  // ctx.fillStyle="rgba(114, 66, 2, .7)";
-  // ctx.shadowBlur = yOffset;
-  ctx.filter = "blur(10px)";
 
+    ctx.filter = `blur(${Math.floor(yOffset*2)}px)`;
 
   ctx.fill();
 
