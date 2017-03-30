@@ -104,6 +104,7 @@
 		<script type="text/javascript" src="../js/features/draw_eyeshadow.js"></script>
 		<script type="text/javascript" src="../js/features/draw_blush.js"></script>
 		<script type="text/javascript" src="../js/features/draw_highlight.js"></script>
+		<script type="text/javascript" src="../js/features/draw_eyelash.js"></script>
 
 
 		<div id="content">
@@ -187,6 +188,9 @@
 					drawLips(pos.slice(44,62),canvas);
 					// drawBlush([pos[39], pos[13]], [pos[1], pos[35]], canvas)
 					drawHighlight([pos[33], pos[41], pos[62], pos[18], pos[22]], canvas);
+					console.log(pos[27]);
+					console.log([pos[24]]);
+					drawEyelash([pos[24]],canvas);
 					document.getElementById('convergence').innerHTML = "CONVERGED";
 					document.getElementById('convergence').style.backgroundColor = "#00FF00";
 					// stop drawloop
