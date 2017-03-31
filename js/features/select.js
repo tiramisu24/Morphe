@@ -2,7 +2,7 @@ const cc = document.getElementById('image').getContext('2d');
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 const regExp = /\(([^)]+)\)/;
-let pos, yOffset, xOffset, eyelinerPosL, eyelinerPosR,$clr1,$cl2;
+let pos, yOffset, xOffset, eyelinerPosL, eyelinerPosR,$clr1,$cl2,box;
 
 const img = new Image();
 img.onload = function() {
@@ -138,26 +138,24 @@ function loadImage() {
 								// check if positions already exist in storage
 
 								// Render thumbnail.
-								// var canvas = document.getElementById('image')
-								// var cc = canvas.getContext('2d');
-								var img = new Image();
+								img = new Image();
 								img.onload = function() {
-									// if (img.height > 500 || img.width > 700) {
-									// 	var rel = img.height/img.width;
-									// 	var neww = 700;
-									// 	var newh = neww*rel;
-									// 	if (newh > 500) {
-									// 		newh = 500;
-									// 		neww = newh/rel;
-									// 	}
-										// canvas.setAttribute('width', neww);
-										// canvas.setAttribute('height', newh);
-										// cc.drawImage(img,0,0,neww, newh);
-									// } else {
+									if (img.height > 1000 || img.width > 900) {
+										var rel = img.height/img.width;
+										var neww = 900;
+										var newh = neww*rel;
+										if (newh > 1000) {
+											newh = 1000;
+											neww = newh/rel;
+										}
+										canvas.setAttribute('width', neww);
+										canvas.setAttribute('height', newh);
+										ctx.drawImage(img,0,0,neww, newh);
+									} else{
 										canvas.setAttribute('width', img.width);
 										canvas.setAttribute('height', img.height);
-										cc.drawImage(img,0,0,img.width, img.height);
-									// }
+										ctx.drawImage(img,0,0,img.width, img.height);
+									}
 								}
 								img.src = e.target.result;
 							};
