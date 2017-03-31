@@ -1,9 +1,15 @@
-const drawEyeshadow = (pos1, pos2, canvas, yOffset, xOffset) => {
+const drawEyeshadow = (pos1, pos2, canvas, yOffset, xOffset,color1,color2) => {
   // console.log('yOffset', yOffset);
-  drawEyedow(pos1,canvas, yOffset/2, xOffset *2);
-  drawEyedow(pos2,canvas, yOffset/2, -xOffset *2);
+  if(color1 === 'default'){
+    color1 = '#8ED6FF';
+  }
+  if(color2 === 'default'){
+    color2 = '#004CB3';
+  }
+  drawEyedow(pos1,canvas, yOffset/2, xOffset *2,color1,color2);
+  drawEyedow(pos2,canvas, yOffset/2, -xOffset *2,color1,color2);
 };
-const drawEyedow = (pos, canvas, yOffset,xOffset) => {
+const drawEyedow = (pos, canvas, yOffset,xOffset,color1,color2) => {
   const x1 = pos[2][0];
   const y1 = pos[2][1];
   const x2 = pos[5][0];
@@ -27,9 +33,9 @@ const drawEyedow = (pos, canvas, yOffset,xOffset) => {
   let bx = (eyebrowx-x5)/3 + x5;
   let by = (eyebrowy-y4)/4 + y5;
   const ctx = canvas.getContext('2d');
-  ctx.shadowColor = "rgb(114, 66, 2)";
-  ctx.shadowOffsetX = 0;
-  ctx.shadowOffsetY = 0;
+  // ctx.shadowColor = "rgb(114, 66, 2)";
+  // ctx.shadowOffsetX = 0;
+  // ctx.shadowOffsetY = 0;
   ctx.beginPath();
   ctx.moveTo(x1, y1);
   ctx.lineTo(x2, y2);
@@ -48,9 +54,9 @@ const drawEyedow = (pos, canvas, yOffset,xOffset) => {
   // console.log(yOffset);
   const grd = ctx.createLinearGradient(x1, y1, bx, y6);
     // light blue
-    grd.addColorStop(0, '#8ED6FF');
+    grd.addColorStop(0, color1);
     // dark blue
-    grd.addColorStop(1, '#004CB3');
+    grd.addColorStop(1, color2);
     ctx.fillStyle = grd;
 
     ctx.filter = `blur(${Math.floor(yOffset*2)}px)`;

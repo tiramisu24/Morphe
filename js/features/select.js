@@ -1,11 +1,12 @@
 const cc = document.getElementById('image').getContext('2d');
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
-let pos, yOffset, xOffset, eyelinerPosL, eyelinerPosR;
+const regExp = /\(([^)]+)\)/;
+let pos, yOffset, xOffset, eyelinerPosL, eyelinerPosR,$clr1,$cl2;
 
 const img = new Image();
 img.onload = function() {
-  cc.drawImage(img,0,0);
+  cc.drawImage(img,0,0,900,1000);
 };
 img.src = './media/no_makeup.jpg';
 
@@ -45,35 +46,57 @@ document.addEventListener("clmtrackrConverged", function(event) {
   // drawEyelash([pos[24]],canvas);
   document.getElementById('convergence').innerHTML = "CONVERGED";
   document.getElementById('convergence').style.backgroundColor = "#00FF00";
-  $('.feature-btns').removeClass('hide');
+  $clr1 = $('#color1');
+  $clr2 = $('#color2');
+  $('#picker').removeClass('hide');
+  $('#color1-label').removeClass('hide');
+  $clr1.removeClass('hide')
 
+  $('.feature-btns').removeClass('hide');
+  console.log($clr1.css('background-color'));
 }, false);
 
 function applyEyebrows(){
-  drawEyebrows(pos.slice(15,19),pos.slice(19,23),canvas, yOffset, xOffset);
+  $clr2.addClass('hide');
+  $('#color2-label').addClass('hide');
+
+  drawEyebrows(pos.slice(15,19),pos.slice(19,23),canvas, yOffset, xOffset, selectColor($clr1.css('background-color')));
 }
 function applyEyeshadow(){
-  drawEyeshadow(eyelinerPosL,eyelinerPosR, canvas, yOffset, xOffset);
+  $clr2.removeClass('hide');
+  $('#color2-label').removeClass('hide');
+  drawEyeshadow(eyelinerPosL,eyelinerPosR, canvas, yOffset, xOffset, selectColor($clr1.css('background-color')), selectColor($clr2.css('background-color')));
 }
 
 function applyEyeliner(){
-  drawEyeliner(eyelinerPosL,eyelinerPosR, canvas, yOffset, xOffset);
+  $clr2.addClass('hide');
+  $('#color2-label').addClass('hide');
+
+  drawEyeliner(eyelinerPosL,eyelinerPosR, canvas, yOffset, xOffset, selectColor($clr1.css('background-color'),1));
 }
 function applyLips(){
-  drawLips(pos.slice(44,62),canvas);
+  $clr2.removeClass('hide');
+  $('#color2-label').removeClass('hide');
+
+  drawLips(pos.slice(44,62),canvas, selectColor($clr1.css('background-color'),0.3));
 }
 
 function applyBlush(){
-  drawBlush(pos, canvas, yOffset);
+  $clr2.removeClass('hide');
+  $('#color2-label').removeClass('hide');
+
+  drawBlush(pos, canvas, yOffset, selectColor($clr1.css('background-color'),0.3));
 }
 
 function applyHighlight(){
-  drawHighlight([pos[33], pos[41], pos[62]], canvas, xOffset);
+  $clr2.addClass('hide');
+  $('#color2-label').addClass('hide');
+
+  drawHighlight([pos[33], pos[41], pos[62]], canvas, xOffset, selectColor($clr1.css('background-color')));
 }
 
 function clearAll(){
   ctx.clearRect(0, 0, 900, 1000);
-
 }
 
 
@@ -97,67 +120,12 @@ function selectBox() {
   });
 }
 
-// function to start showing images
-// function loadImage() {
-//   if (fileList.indexOf(fileIndex) < 0) {
-//     var reader = new FileReader();
-//     reader.onload = (function(theFile) {
-//       return function(e) {
-//         // check if positions already exist in storage
-//
-//         // Render thumbnail.
-//         var canvas = document.getElementById('image')
-//         var cc = canvas.getContext('2d');
-//         var img = new Image();
-//         img.onload = function() {
-//           if (img.height > 500 || img.width > 700) {
-//             var rel = img.height/img.width;
-//             var neww = 700;
-//             var newh = neww*rel;
-//             if (newh > 500) {
-//               newh = 500;
-//               neww = newh/rel;
-//             }
-//             canvas.setAttribute('width', neww);
-//             canvas.setAttribute('height', newh);
-//             cc.drawImage(img,0,0,neww, newh);
-//           } else {
-//             canvas.setAttribute('width', img.width);
-//             canvas.setAttribute('height', img.height);
-//             cc.drawImage(img,0,0,img.width, img.height);
-//           }
-//         }
-//         img.src = e.target.result;
-//       };
-//     })(fileList[fileIndex]);
-//     reader.readAsDataURL(fileList[fileIndex]);
-//     ctx.clearRect(0, 0, 720, 576);
-//     document.getElementById('convergence').innerHTML = "";
-//     ctrack.reset();
-//   }
-//
-// }
+function selectColor(color, opacity = 0.5){
+  const matches = regExp.exec(color);
 
-// set up file selector and variables to hold selections
-// var fileList, fileIndex;
-// if (window.File && window.FileReader && window.FileList) {
-//   function handleFileSelect(evt) {
-//     var files = evt.target.files;
-//     fileList = [];
-//     for (var i = 0;i < files.length;i++) {
-//       if (!files[i].type.match('image.*')) {
-//         continue;
-//       }
-//       fileList.push(files[i]);
-//     }
-//     if (files.length > 0) {
-//       fileIndex = 0;
-//     }
-//
-//     loadImage();
-//   }
-//   document.getElementById('files').addEventListener('change', handleFileSelect, false);
-// } else {
-//   $('#files').addClass("hide");
-//   $('#loadimagetext').addClass("hide");
-// }
+  if(matches[1] === '255, 255, 255'){
+    return  "default";
+  }else {
+    return `rgba(${matches[1]}, ${opacity})`;
+  }
+}

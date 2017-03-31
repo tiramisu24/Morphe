@@ -1,19 +1,31 @@
 <!doctype html>
 <html lang="en">
 	<head>
-		<title>Image</title>
+		<title>Morphe</title>
 		<meta charset="utf-8">
 		<script src="./ext_js/jquery.min.js"></script>
 		<script type="text/javascript" src="../js/farbtastic/farbtastic.js"></script>
 		<link rel="stylesheet" type="text/css" href="style.css">
 		<link rel="stylesheet" href="../js/farbtastic/farbtastic.css" type="text/css" />
 
-		<script type="text/javascript">
-		 $(document).ready(function() {
-			 $('#demo').hide();
-			 $('#picker').farbtastic('#color');
-		 });
-		</script>
+		<script type="text/javascript" charset="utf-8">
+	   $(document).ready(function() {
+	     $('#demo').hide();
+	     var f = $.farbtastic('#picker');
+	     var p = $('#picker').css('opacity', 0.25);
+	     var selected;
+	     $('.colorwell')
+	       .each(function () { f.linkTo(this); $(this).css('opacity', 0.75); })
+	       .focus(function() {
+	         if (selected) {
+	           $(selected).css('opacity', 0.75).removeClass('colorwell-selected');
+	         }
+	         f.linkTo(this);
+	         p.css('opacity', 1);
+	         $(selected = this).css('opacity', 1).addClass('colorwell-selected');
+	       });
+	   });
+	  </script>
 
 
 	</head>
@@ -21,12 +33,6 @@
 
 
 
-			<div >
-			  <form action="" style="width: 400px;">
-			    <div class="form-item"><label for="color">Color:</label><input type="text" id="color" name="color" value="#123456" /></div>
-					<div id="picker"></div>
-			  </form>
-			</div>
 
 		<script src="./ext_js/utils.js"></script>
 		<script src="./ext_js/dat.gui.min.js"></script>
@@ -61,15 +67,32 @@
 		<script type="text/javascript" src="../js/features/draw_eyelash.js"></script>
 
 		<div id="content">
-			<h2>Morphe</h2>
+			<h1>Morphe</h1>
 			<div id="container">
 				<canvas id="image" width="900" height="1000"></canvas>
 				<canvas id="canvas" width="900" height="1000"></canvas>
+				<div class="color-picker">
+
+					<form class="form-item">
+						<div id="picker" class="hide"></div>
+						<div class="color-form">
+							<div class="form-item">
+								<input type="text" id="color1" name="color1" class="colorwell hide" />
+								<label for="color" id="color1-label" class="hide">Color 1</label>
+							</div>
+							<div class="form-item">
+								<input type="text" id="color2" name="color2" class="colorwell hide" />
+								<label for="color2" id="color2-label" class="hide">Color 2</label>
+							</div>
+							</div>
+					</form>
+
+				</div>
 			</div>
 
 			<div class="face-select-buttons" >
-				<button onclick="animateClean()">Start</button>
-				<button onclick="selectBox()">Manually Select Face</button>
+				<button class="face-select" onclick="animateClean()">Start</button>
+				<button class="face-select" onclick="selectBox()">Manually Select Face</button>
 			</div>
 			<p id="convergence"></p>
 
@@ -85,11 +108,16 @@
 
 		</div>
 
+
+
 		<script type="text/javascript" src="../js/features/select.js"></script>
 
 
-
-
+		<div class = "footer">
+			<a href="https://github.com/tiramisu24/Morphe">Morphe Docs</a>
+			<a href="https://github.com/tiramisu24">Github</a>
+			<a href="https://www.linkedin.com/in/dianezheng/">LinkedIn</a>
+	  </div>
 
 	</body>
 </html>

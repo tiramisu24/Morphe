@@ -1,4 +1,7 @@
-const drawLips = (pos,canvas) => {
+const drawLips = (pos,canvas,color) => {
+  if(color === 'default'){
+    color = "rgba(244,66,66,.3)";
+  }
   const ctx = canvas.getContext('2d');
   // drawLines(ctx, pos);
   ctx.beginPath();
@@ -16,12 +19,8 @@ const drawLips = (pos,canvas) => {
       ctx.lineTo(pos[6][0], pos[6][1]);
     }
   });
-  // // console.log("before closePath");
   ctx.closePath();
-  ctx.fillStyle="#000";
-  // console.log("in lips");
-
-  ctx.fillStyle = "rgba(244,66,66,.7)";
+  ctx.fillStyle = color;
 
 
   ctx.fill();

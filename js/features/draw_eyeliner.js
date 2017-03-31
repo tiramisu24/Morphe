@@ -1,8 +1,12 @@
-const drawEyeliner = (pos1, pos2, canvas, yOffset, xOffset) => {
-  drawEye(pos1,canvas, yOffset/2);
-  drawEye(pos2,canvas, yOffset/2);
+const drawEyeliner = (pos1, pos2, canvas, yOffset, xOffset,color) => {
+  if(color === 'default'){
+    color = "#000";
+  }
+
+  drawEye(pos1,canvas, yOffset/2,color);
+  drawEye(pos2,canvas, yOffset/2,color);
 };
-const drawEye = (pos, canvas, yOffset) => {
+const drawEye = (pos, canvas, yOffset,color) => {
   const x1 = pos[2][0];
   const y1 = pos[2][1];
   const x2 = pos[5][0];
@@ -41,7 +45,7 @@ const drawEye = (pos, canvas, yOffset) => {
   ctx.lineTo(x1, y10);
 
   ctx.closePath();
-  ctx.fillStyle="#000";
+  ctx.fillStyle=color;
   ctx.filter = 'blur(5px)';
 
   ctx.fill();

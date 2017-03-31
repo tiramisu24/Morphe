@@ -1,32 +1,101 @@
+h1{
+	font-size: 5em;
+}
+button{
+  -webkit-appearance: none;
+	background-color: none;
+	border: none;
+}
+a{
+	text-decoration: none;
+	color: inherit;
+}
+p{
+	background-color: inherit !important;
+}
+.face-select {
+	margin: 10px;
+	padding: 5px 15px;
+	font-size: 1.5em;
+	color: grey;
+	background-color: pink;
 
-			#canvas {
-				position: absolute;
-				top: 0px;
-				left: 0px;
-			}
+}
 
-			#container {
-				position : relative;
-			}
+.feature-btns{
+	margin: 0;
+	color: white;
+	width: 6.2em;
+	padding: 5px 15px;
+	font-size: 1.5em;
+	background-color: black;
 
-			#content {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-			}
+}
 
-			#sketch {
-				display: none;
-			}
+.color-picker{
+	position: absolute;
+	top: 30vh;
+	left: 40vw;
+}
 
-			#filter {
-				display: none;
-			}
+.footer{
+	margin-top: 10vh;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	font-size: 4em;
+	height: 10vh;
+	background-color: grey;
+	color: white;
+	padding: 0px 30px;
 
-			#convergence {
-				display : inline;
-			}
-      
-			.hide {
-				display : none;
-			}
+}
+.color-form{
+	display: flex;
+}
+.form-item{
+	padding: 10px;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+}
+
+.form-item > input{
+	margin: 10px;
+	height:100px;
+	width: 100px;
+}
+#canvas {
+	position: absolute;
+	top: 0px;
+	left: 0px;
+}
+
+#container {
+	position : relative;
+}
+
+#content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#sketch {
+	display: none;
+}
+
+#filter {
+	display: none;
+}
+
+#convergence {
+	display : inline;
+	font-size: 2em;
+
+}
+
+.hide {
+	display : none;
+}
