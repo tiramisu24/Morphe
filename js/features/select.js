@@ -129,3 +129,65 @@ function selectColor(color, opacity = 0.5){
     return `rgba(${matches[1]}, ${opacity})`;
   }
 }
+
+function loadImage() {
+					if (fileList.indexOf(fileIndex) < 0) {
+						var reader = new FileReader();
+						reader.onload = (function(theFile) {
+							return function(e) {
+								// check if positions already exist in storage
+
+								// Render thumbnail.
+								// var canvas = document.getElementById('image')
+								// var cc = canvas.getContext('2d');
+								var img = new Image();
+								img.onload = function() {
+									// if (img.height > 500 || img.width > 700) {
+									// 	var rel = img.height/img.width;
+									// 	var neww = 700;
+									// 	var newh = neww*rel;
+									// 	if (newh > 500) {
+									// 		newh = 500;
+									// 		neww = newh/rel;
+									// 	}
+										// canvas.setAttribute('width', neww);
+										// canvas.setAttribute('height', newh);
+										// cc.drawImage(img,0,0,neww, newh);
+									// } else {
+										canvas.setAttribute('width', img.width);
+										canvas.setAttribute('height', img.height);
+										cc.drawImage(img,0,0,img.width, img.height);
+									// }
+								}
+								img.src = e.target.result;
+							};
+						})(fileList[fileIndex]);
+						reader.readAsDataURL(fileList[fileIndex]);
+						ctx.clearRect(0, 0, 900, 1000);
+						document.getElementById('convergence').innerHTML = "";
+						ctrack.reset();
+					}
+				}
+				// set up file selector and variables to hold selections
+				var fileList, fileIndex;
+				if (window.File && window.FileReader && window.FileList) {
+					function handleFileSelect(evt) {
+						var files = evt.target.files;
+						fileList = [];
+						for (var i = 0;i < files.length;i++) {
+							if (!files[i].type.match('image.*')) {
+								continue;
+							}
+							fileList.push(files[i]);
+						}
+						if (files.length > 0) {
+							fileIndex = 0;
+						}
+
+						loadImage();
+					}
+					document.getElementById('files').addEventListener('change', handleFileSelect, false);
+				} else {
+					$('#files').addClass("hide");
+					$('#loadimagetext').addClass("hide");
+				}

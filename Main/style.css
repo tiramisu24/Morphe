@@ -6,12 +6,23 @@ button{
 	background-color: none;
 	border: none;
 }
+input{
+	-webkit-appearance: none;
+	border:none;
+	background-color: inherit;
+}
+input[type="file"] {
+	display: none
+}
 a{
 	text-decoration: none;
 	color: inherit;
 }
 p{
 	background-color: inherit !important;
+}
+.custom-upload{
+	 font: 11px system-ui;
 }
 .face-select {
 	margin: 10px;
@@ -66,6 +77,7 @@ p{
 	height:100px;
 	width: 100px;
 }
+
 #canvas {
 	position: absolute;
 	top: 0px;
