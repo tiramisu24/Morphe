@@ -43,8 +43,8 @@ p{
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	font-size: 4em;
-	height: 10vh;
+	font-size: 2em;
+	height: 5vh;
 	background-color: grey;
 	color: white;
 	padding: 0px 30px;

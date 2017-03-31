@@ -23,9 +23,7 @@ and the About modal.  Game controls will include Start, Stop, and Reset buttons 
 - Vanilla JavaScript for overall structure and game logic,
 - clmtrackr.js for face detection
 - `HTML5 Canvas` for DOM manipulation and rendering,
-- Webpack to bundle and serve up the various scripts.
 
-In addition to the webpack entry file, there will be three scripts involved in this project:
 
 `select.js`: this script will handle the logic detecting face and landmarks.
 `paint.js`: this script will handle logic on what to paint on the picture.
