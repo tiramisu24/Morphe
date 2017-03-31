@@ -28,7 +28,6 @@ const drawEye = (pos, canvas, yOffset) => {
   let by = (eyebrowy-y4)/4 + y5;
   const ctx = canvas.getContext('2d');
 
-
   ctx.beginPath();
   ctx.moveTo(x1, y1);
   ctx.lineTo(x2, y2);
