@@ -69,9 +69,7 @@ function applyBlush(){
 
 function applyHighlight(){
   drawHighlight([pos[33], pos[41], pos[62]], canvas, xOffset);
-
 }
-
 
 function clearAll(){
   ctx.clearRect(0, 0, 900, 1000);

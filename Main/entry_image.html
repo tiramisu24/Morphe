@@ -3,9 +3,30 @@
 	<head>
 		<title>Image</title>
 		<meta charset="utf-8">
+		<script src="./ext_js/jquery.min.js"></script>
+		<script type="text/javascript" src="../js/farbtastic/farbtastic.js"></script>
 		<link rel="stylesheet" type="text/css" href="style.css">
+		<link rel="stylesheet" href="../js/farbtastic/farbtastic.css" type="text/css" />
+
+		<script type="text/javascript">
+		 $(document).ready(function() {
+			 $('#demo').hide();
+			 $('#picker').farbtastic('#color');
+		 });
+		</script>
+
+
 	</head>
 	<body>
+
+
+
+			<div >
+			  <form action="" style="width: 400px;">
+			    <div class="form-item"><label for="color">Color:</label><input type="text" id="color" name="color" value="#123456" /></div><div id="picker"></div>
+			  </form>
+			</div>
+
 		<script src="./ext_js/utils.js"></script>
 		<script src="./ext_js/dat.gui.min.js"></script>
 		<script src="./ext_js/jsfeat-min.js"></script>
@@ -23,8 +44,8 @@
 		<script src="../js/mossefilter.js"></script>
 		<script src="./ext_js/Stats.js"></script>
 
+
 		<link rel="stylesheet" type="text/css" href="./styles/imgareaselect-default.css" />
-		<script src="./ext_js/jquery.min.js"></script>
 		<script src="./ext_js/jquery.imgareaselect.pack.js"></script>
 		<script src="./ext_js/BlobBuilder.min.js"></script>
 		<script src="./ext_js/Filesaver.min.js"></script>
@@ -64,6 +85,9 @@
 		</div>
 
 		<script type="text/javascript" src="../js/features/select.js"></script>
+
+
+
 
 
 	</body>
