@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<title>Morphe</title>
+		<meta charset="utf-8">
+		<script src="./Main/ext_js/jquery.min.js"></script>
+		<script type="text/javascript" src="./js/farbtastic/farbtastic.js"></script>
+		<link rel="stylesheet" type="text/css" href="./Main/style.css">
+		<link rel="stylesheet" href="./js/farbtastic/farbtastic.css" type="text/css" />
+
+		<script type="text/javascript" charset="utf-8">
+	   $(document).ready(function() {
+	     $('#demo').hide();
+	     var f = $.farbtastic('#picker');
+	     var p = $('#picker').css('opacity', 0.25);
+	     var selected;
+	     $('.colorwell')
+	       .each(function () { f.linkTo(this); $(this).css('opacity', 0.75); })
+	       .focus(function() {
+	         if (selected) {
+	           $(selected).css('opacity', 0.75).removeClass('colorwell-selected');
+	         }
+	         f.linkTo(this);
+	         p.css('opacity', 1);
+	         $(selected = this).css('opacity', 1).addClass('colorwell-selected');
+	       });
+	   });
+	  </script>
+
+
+	</head>
+	<body>
+
+
+
+
+		<script src="./Main/ext_js/utils.js"></script>
+		<script src="./Main/ext_js/dat.gui.min.js"></script>
+		<script src="./Main/ext_js/jsfeat-min.js"></script>
+		<script src="./Main/ext_js/frontalface.js"></script>
+		<script src="./Main/ext_js/jsfeat_detect.js"></script>
+		<script src="./Main/ext_js/numeric-1.2.6.min.js"></script>
+		<script src="./Main/ext_js/mosse.js"></script>
+		<script src="./Main/ext_js/left_eye_filter.js"></script>
+		<script src="./Main/ext_js/right_eye_filter.js"></script>
+		<script src="./Main/ext_js/nose_filter.js"></script>
+		<script src="./models/model_pca_20_svm.js"></script>
+		<script src="./js/clm.js"></script>
+		<script src="./js/svmfilter_webgl.js"></script>
+		<script src="./js/svmfilter_fft.js"></script>
+		<script src="./js/mossefilter.js"></script>
+		<script src="./Main/ext_js/Stats.js"></script>
+
+
+		<link rel="stylesheet" type="text/css" href="./Main/styles/imgareaselect-default.css" />
+		<script src="./Main/ext_js/jquery.imgareaselect.pack.js"></script>
+		<script src="./Main/ext_js/BlobBuilder.min.js"></script>
+		<script src="./Main/ext_js/Filesaver.min.js"></script>
+
+		<script type="text/javascript" src="./js/features/cardinal.js"></script>
+		<script type="text/javascript" src="./js/features/draw_eyebrows.js"></script>
+		<script type="text/javascript" src="./js/features/draw_lips.js"></script>
+		<script type="text/javascript" src="./js/features/draw_eyeliner.js"></script>
+		<script type="text/javascript" src="./js/features/draw_eyeshadow.js"></script>
+		<script type="text/javascript" src="./js/features/draw_blush.js"></script>
+		<script type="text/javascript" src="./js/features/draw_highlight.js"></script>
+		<script type="text/javascript" src="./js/features/draw_eyelash.js"></script>
+
+		<div id="content">
+			<h1>Morphe</h1>
+			<div id="container">
+				<canvas id="image" width="900" height="1000"></canvas>
+				<canvas id="canvas" width="900" height="1000"></canvas>
+				<div class="color-picker">
+
+					<form class="form-item">
+						<div id="picker" class="hide"></div>
+						<div class="color-form">
+							<div class="form-item">
+								<input type="text" id="color1" name="color1" class="colorwell hide" />
+								<label for="color" id="color1-label" class="hide">Color 1</label>
+							</div>
+							<div class="form-item">
+								<input type="text" id="color2" name="color2" class="colorwell hide" />
+								<label for="color2" id="color2-label" class="hide">Color 2</label>
+							</div>
+							</div>
+					</form>
+
+				</div>
+			</div>
+
+			<div class="face-select-buttons" >
+				<button class="face-select" onclick="animateClean()">Start</button>
+				<button class="face-select" onclick="selectBox()">Manually Select Face</button>
+			</div>
+			<p id="convergence"></p>
+
+			<div class="feature-select-buttons">
+				<button id = 'eyeshadow-button' class = 'feature-btns hide' onclick="applyEyeshadow()">Eyeshadow</button>
+				<button id = 'eyeliner-button' class = 'feature-btns hide' onclick="applyEyeliner()">Eyeliner</button>
+				<button id = 'lips-button' class = 'feature-btns hide' onclick="applyLips()">Lips</button>
+				<button id = 'eyebrows-button' class = 'feature-btns hide' onclick="applyEyebrows()">Eyebrows</button>
+				<button id = 'blush-button' class = 'feature-btns hide' onclick="applyBlush()">Blush</button>
+				<button id = 'clear-button' class = 'feature-btns hide' onclick="clearAll()">Clear</button>
+
+			</div>
+
+		</div>
+
+
+
+		<script type="text/javascript" src="./js/features/select.js"></script>
+
+
+		<div class = "footer">
+			<a href="https://github.com/tiramisu24/Morphe">Morphe Docs</a>
+			<a href="https://github.com/tiramisu24">Github</a>
+			<a href="https://www.linkedin.com/in/dianezheng/">LinkedIn</a>
+	  </div>
+
+	</body>
+</html>
