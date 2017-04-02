@@ -31,9 +31,6 @@
 	</head>
 	<body>
 
-
-
-
 		<script src="./ext_js/utils.js"></script>
 		<script src="./ext_js/dat.gui.min.js"></script>
 		<script src="./ext_js/jsfeat-min.js"></script>
@@ -69,9 +66,11 @@
 		<div id="content">
 			<h1>Morphe</h1>
 			<div id="container">
-				<canvas id="image" width="900" height="1000"></canvas>
-				<canvas id="canvas" width="900" height="1000"></canvas>
+				<canvas id="image" width="450" height="500"></canvas>
+				<canvas id="canvas" width="450" height="500"></canvas>
 				<div class="color-picker">
+				<video id="video" width="450" height="500" preload="auto" loop>
+				</video>
 
 					<form class="form-item">
 						<div id="picker" class="hide"></div>
@@ -110,7 +109,7 @@
 
 
 
-		<script type="text/javascript" src="../js/features/select.js"></script>
+		<script type="text/javascript" src="../js/features/start_video.js"></script>
 
 
 		<div class = "footer">

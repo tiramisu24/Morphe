@@ -45,11 +45,10 @@ function drawLoop() {
   ctx.clearRect(0, 0, 450, 500);
   let pos = ctrack.getCurrentPosition()
   if (pos) {
-    console.log("i am here");
+    // console.log("i am here");
     // console.log(pos);
-    drawLeftBrow(pos.slice(15,19),canvas)
-    drawLeftBrow(pos.slice(19,23),canvas)
-    ctrack.draw(canvas);
+  // drawLips(pos.slice(44,62),canvas, 'default');
+  ctrack.draw(canvas);
   }
 }
 

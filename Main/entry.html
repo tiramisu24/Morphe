@@ -5,19 +5,7 @@
     <title>Morphe</title>
 
     <!-- Taken From clmtrackr  -->
-    <script type="text/javascript">
 
-      var _gaq = _gaq || [];
-      _gaq.push(['_setAccount', 'UA-32642923-1']);
-      _gaq.push(['_trackPageview']);
-
-      (function() {
-        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-      })();
-
-    </script>
 
     <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
 
@@ -38,26 +26,70 @@
 		<script src="../js/mossefilter.js"></script>
 		<script src="./ext_js/Stats.js"></script>
 
+
+    		<link rel="stylesheet" type="text/css" href="./styles/imgareaselect-default.css" />
+    		<script src="./ext_js/jquery.imgareaselect.pack.js"></script>
+
+
+
+    <script type="text/javascript" src="../js/features/cardinal.js"></script>
+    <script type="text/javascript" src="../js/features/draw_eyebrows.js"></script>
+    <script type="text/javascript" src="../js/features/draw_lips.js"></script>
+    <script type="text/javascript" src="../js/features/draw_eyeliner.js"></script>
+    <script type="text/javascript" src="../js/features/draw_eyeshadow.js"></script>
+    <script type="text/javascript" src="../js/features/draw_blush.js"></script>
+    <script type="text/javascript" src="../js/features/draw_highlight.js"></script>
+    <script type="text/javascript" src="../js/features/draw_eyelash.js"></script>
+
   </head>
   <body>
-    <div class="intro">
-      <h1>Welcome to Morphe</h1>
-    </div>
-
-    <div class="container">
-
-      <video id="video" width="700" height="500" preload="auto" loop>
+    <h1>Morphe</h1>
+    <div id="container">
+      <canvas id="image" width="450" height="500"></canvas>
+      <canvas id="canvas" width="450" height="500"></canvas>
+      <div class="color-picker">
+      <video id="video" width="450" height="500" preload="auto" loop>
       </video>
 
+        <form class="form-item">
+          <div id="picker" class="hide"></div>
+          <div class="color-form">
+            <div class="form-item">
+              <input type="text" id="color1" name="color1" class="colorwell hide" />
+              <label for="color" id="color1-label" class="hide">Color 1</label>
+            </div>
+            <div class="form-item">
+              <input type="text" id="color2" name="color2" class="colorwell hide" />
+              <label for="color2" id="color2-label" class="hide">Color 2</label>
+            </div>
+            </div>
+        </form>
 
-      <canvas id="canvas" width="700" height="500"></canvas>
-
-      <button id ="start-button" onclick="startVideo()">Start</button>
-
-
-      <script type="text/javascript" src="../js/features/start_video.js"></script>
-      <script type="text/javascript" src="../js/features/draw_eyebrows.js"></script>
-      <script type="text/javascript" src="../js/features/draw_lips.js"></script>
+      </div>
     </div>
+
+    <div class="face-select-buttons" >
+      <button class="face-select" onclick="animateClean()">Start</button>
+      <button class="face-select" onclick="selectBox()">Manually Select Face</button>
+    </div>
+    <p id="convergence"></p>
+
+    <div class="feature-select-buttons">
+      <button id = 'eyeshadow-button' class = 'feature-btns hide' onclick="applyEyeshadow()">Eyeshadow</button>
+      <button id = 'eyeliner-button' class = 'feature-btns hide' onclick="applyEyeliner()">Eyeliner</button>
+      <button id = 'lips-button' class = 'feature-btns hide' onclick="applyLips()">Lips</button>
+      <button id = 'eyebrows-button' class = 'feature-btns hide' onclick="applyEyebrows()">Eyebrows</button>
+      <button id = 'blush-button' class = 'feature-btns hide' onclick="applyBlush()">Blush</button>
+      <button id = 'clear-button' class = 'feature-btns hide' onclick="clearAll()">Clear</button>
+
+    </div>
+
+  </div>
+
+
+
+    <script type="text/javascript" src="../js/features/start_video.js"></script>
+
+
   </body>
 </html>

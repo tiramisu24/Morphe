@@ -1,6 +1,7 @@
 const drawLips = (pos,canvas,color) => {
   if(color === 'default'){
-    color = "rgba(244,66,66,.3)";
+    // color = "rgba(244,66,66,.3)";
+    color = "rgba(0,0,0,0)";
   }
   const ctx = canvas.getContext('2d');
   // drawLines(ctx, pos);
