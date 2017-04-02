@@ -53,10 +53,10 @@ p{
 
 
 .footer{
-	position: absolute;
+	/*position: absolute;
   right: 0;
   bottom: 0;
-  left: 0;
+  left: 0;*/
 	margin-top: 10vh;
 	display: flex;
 	justify-content: space-between;

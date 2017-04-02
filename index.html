@@ -8,6 +8,7 @@
 		<link rel="stylesheet" type="text/css" href="./Main/style.css">
 		<link rel="stylesheet" href="./js/farbtastic/farbtastic.css" type="text/css" />
 
+		<!-- color picker -->
 		<script type="text/javascript" charset="utf-8">
 	   $(document).ready(function() {
 	     $('#demo').hide();
@@ -27,13 +28,8 @@
 	   });
 	  </script>
 
-
 	</head>
 	<body>
-
-
-
-
 		<script src="./Main/ext_js/utils.js"></script>
 		<script src="./Main/ext_js/dat.gui.min.js"></script>
 		<script src="./Main/ext_js/jsfeat-min.js"></script>
@@ -74,8 +70,11 @@
 				<h1>Morphe</h1>
 
 				<div id="container">
-					<canvas id="image" width="900" height="1000"></canvas>
-					<canvas id="canvas" width="900" height="1000"></canvas>
+					<canvas id="image" width="450" height="500"></canvas>
+					<canvas id="canvas" width="450" height="500"></canvas>
+
+					<video id="videoel" class='hide' width="450" height="500" preload="auto" loop>
+					</video>
 				</div>
 
 				<div class="face-select-buttons" >
@@ -83,6 +82,8 @@
 					<button class="face-select" onclick="selectBox()">Manually Select Face</button>
 					<label for="files" class="face-select custom-upload">Upload Image</label>
 					<input type="file"  id="files" name="files[]" />
+
+					<button id ="start-button" onclick="startVideo()">Start</button>
 
 				</div>
 				<p id="convergence"></p>

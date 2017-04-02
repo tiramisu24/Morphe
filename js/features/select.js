@@ -6,7 +6,7 @@ let pos, yOffset, xOffset, eyelinerPosL, eyelinerPosR,$clr1,$cl2,box;
 
 const img = new Image();
 img.onload = function() {
-  cc.drawImage(img,0,0,900,1000);
+  cc.drawImage(img,0,0,450,500);
 };
 img.src = './media/no_makeup.jpg';
 
@@ -14,11 +14,12 @@ const ctrack = new clm.tracker({stopOnConvergence : true});
 ctrack.init(pModel);
 
 function animateClean() {
-  ctrack.start(document.getElementById('image'),[13, 16, 868, 926]);
+  ctrack.start(document.getElementById('image'),[6, 42, 437, 437]);
 
 }
 
 function animate(box) {
+  console.log(box);
   ctrack.start(document.getElementById('image'), box);
 }
 
@@ -45,7 +46,7 @@ document.addEventListener("clmtrackrConverged", function(event) {
   eyelinerPosR = (pos.slice(23,27).concat(pos.slice(63,67)).concat([pos[19]]));
   // drawEyelash([pos[24]],canvas);
   document.getElementById('convergence').innerHTML = "CONVERGED";
-  document.getElementById('convergence').style.backgroundColor = "#00FF00";
+  // document.getElementById('convergence').style.backgroundColor = "#00FF00";
   $clr1 = $('#color1');
   $clr2 = $('#color2');
   $('#picker').removeClass('hide');
@@ -53,7 +54,6 @@ document.addEventListener("clmtrackrConverged", function(event) {
   $clr1.removeClass('hide')
 
   $('.feature-btns').removeClass('hide');
-  console.log($clr1.css('background-color'));
 }, false);
 
 function applyEyebrows(){
@@ -96,13 +96,13 @@ function applyHighlight(){
 }
 
 function clearAll(){
-  ctx.clearRect(0, 0, 900, 1000);
+  ctx.clearRect(0, 0, 450, 500);
 }
 
 
 // manual selection of faces (with jquery imgareaselect plugin)
 function selectBox() {
-  ctx.clearRect(0, 0, 900, 1000);
+  ctx.clearRect(0, 0, 450, 500);
   document.getElementById('convergence').innerHTML = "";
   ctrack.reset();
   $('#canvas').addClass('hide');
@@ -121,9 +121,10 @@ function selectBox() {
 }
 
 function selectColor(color, opacity = 0.5){
+  console.log(color);
   const matches = regExp.exec(color);
 
-  if(matches[1] === '255, 255, 255'){
+  if(matches[1] === '255, 255, 255' || color === 'rgba(0, 0, 0, 0)'){
     return  "default";
   }else {
     return `rgba(${matches[1]}, ${opacity})`;
@@ -140,12 +141,12 @@ function loadImage() {
 								// Render thumbnail.
 								img = new Image();
 								img.onload = function() {
-									if (img.height > 1000 || img.width > 900) {
+									if (img.height > 500 || img.width > 450) {
 										var rel = img.height/img.width;
-										var neww = 900;
+										var neww = 450;
 										var newh = neww*rel;
-										if (newh > 1000) {
-											newh = 1000;
+										if (newh > 500) {
+											newh = 500;
 											neww = newh/rel;
 										}
 										canvas.setAttribute('width', neww);
@@ -161,7 +162,7 @@ function loadImage() {
 							};
 						})(fileList[fileIndex]);
 						reader.readAsDataURL(fileList[fileIndex]);
-						ctx.clearRect(0, 0, 900, 1000);
+						ctx.clearRect(0, 0, 450, 500);
 						document.getElementById('convergence').innerHTML = "";
 						ctrack.reset();
 					}
@@ -189,3 +190,8 @@ function loadImage() {
 					$('#files').addClass("hide");
 					$('#loadimagetext').addClass("hide");
 				}
+
+//video
+
+navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
+window.URL = window.URL || window.webkitURL || window.msURL || window.mozURL;
