@@ -60,6 +60,8 @@
 		<script type="text/javascript" src="./js/features/draw_blush.js"></script>
 		<script type="text/javascript" src="./js/features/draw_highlight.js"></script>
 		<script type="text/javascript" src="./js/features/draw_eyelash.js"></script>
+		<script type="text/javascript" src="./js/features/draw_features.js"></script>
+
 
 		<div class="main-content">
 			<div class="demos">
@@ -69,10 +71,10 @@
 				<h1>Morphe</h1>
 
 				<div id="container">
-					<canvas id="image" width="450" height="500"></canvas>
+					<canvas id="image" width="450" height="500" class='hide'></canvas>
 					<canvas id="canvas" width="450" height="500"></canvas>
 
-					<video id="video" width="450" height="500" preload="auto" loop>
+					<video id="video" width="450" height="500" class = 'hide'preload="auto" loop>
 					</video>
 				</div>
 
@@ -82,6 +84,7 @@
 					<label for="files" class="face-select custom-upload">Upload Image</label>
 					<input type="file"  id="files" name="files[]" />
 
+					<button id ="start-button" onclick="switchToVideo()">Switch to video</button>
 					<button id ="start-button" onclick="startVideo()">Start Video</button>
 
 				</div>

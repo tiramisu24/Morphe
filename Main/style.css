@@ -28,7 +28,6 @@ p{
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	background-color: wheat;
 }
 .custom-upload{
 	 font: 11px system-ui;
@@ -38,7 +37,6 @@ p{
 	padding: 5px 15px;
 	font-size: 1.5em;
 	color: grey;
-	background-color: pink;
 
 }
 
@@ -85,9 +83,12 @@ p{
 	position: absolute;
 	top: 0px;
 	left: 0px;
+	border: 2px solid black;
 }
 
 #container {
+	height: 500px;
+	background-color: pink;
 	position : relative;
 }
 
