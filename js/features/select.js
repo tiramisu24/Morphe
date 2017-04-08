@@ -12,14 +12,18 @@ ctrack.init(pModel);
 
 const img = new Image();
 img.onload = function() {
-  cc.drawImage(img,0,0,450,500);
+  cc.drawImage(img,100,0,450,500);
+
 };
 img.src = './media/no_makeup.jpg';
 
-
+if(img.width < 625){
+  let correction = Math.floor((625-img.width)/2);
+  $('#image').addClass('padding-left', `${correction}px`)
+}
 function animateClean() {
 
-  ctrack.start(document.getElementById('image'),[6, 42, 437, 437]);
+  ctrack.start(document.getElementById('image'),[114, 16, 425, 469]);
 }
 
 function animate(box) {
@@ -86,7 +90,8 @@ function loadImage() {
     reader.onload = (function(theFile) {
       return function(e) {
         // check if positions already exist in storage
-
+        var canvas = document.getElementById('image')
+              var ctx = canvas.getContext('2d');
         // Render thumbnail.
 
         var img = new Image();
@@ -106,6 +111,10 @@ function loadImage() {
             canvas.setAttribute('width', img.width);
             canvas.setAttribute('height', img.height);
             ctx.drawImage(img,0,0,img.width, img.height);
+          }
+          if(img.width < 625){
+            let correction = Math.floor((625-img.width)/2);
+            $('#image').addClass('padding-left', `${correction}px`)
           }
         }
         img.src = e.target.result;

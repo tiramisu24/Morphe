@@ -1,6 +1,10 @@
 h1{
 	font-size: 5em;
 }
+body{
+	overflow-x:hidden;
+	/*background-color: pink;*/
+}
 button{
   -webkit-appearance: none;
 	background-color: none;
@@ -31,13 +35,13 @@ p{
 }
 .custom-upload{
 	 font: 11px system-ui;
+	 background-color: lightgrey;
 }
 .face-select {
 	margin: 10px;
 	padding: 5px 15px;
 	font-size: 1.5em;
 	color: grey;
-
 }
 
 .feature-btns{
@@ -51,7 +55,13 @@ p{
 
 
 .footer{
-	margin-top: 10vh;
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	/*right:0;*/
+	width: 98vw;
+	margin-top: 100%;
+	max-width:100%;
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
@@ -59,9 +69,12 @@ p{
 	height: 5vh;
 	background-color: grey;
 	color: white;
-	padding: 0px 30px;
+	padding: 10px 30px;
 
 }
+/*.footer > a{
+	padding-right: 100px;
+}*/
 .color-form{
 	display: flex;
 }
@@ -83,14 +96,20 @@ p{
 	position: absolute;
 	top: 0px;
 	left: 0px;
-	border: 2px solid black;
 }
 
 #container {
 	height: 500px;
-	background-color: pink;
+	/*background-color: pink;*/
 	position : relative;
+	display: flex;
+	justify-content: center;
+	align-items: center;
 }
+#image{
+	border: 2px solid black;
+}
+
 
 #content {
   display: flex;
