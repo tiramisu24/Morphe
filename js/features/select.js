@@ -6,8 +6,18 @@ const regExp = /\(([^)]+)\)/;
 const makeup = [];
 let pos, yOffset, xOffset, eyelinerPosL, eyelinerPosR,$clr1,$cl2,box;
 let ctrack;
+//
+// function enablestart() {
+//     var startbutton = document.getElementById('startbutton');
+//     startbutton.value = "start";
+//     startbutton.disabled = null;
+//   }
 
 function switchToVideo(){
+  clearAll();
+  $('video').removeClass('hide');
+
+  $('#image').addClass('hide');
   ctrack = new clm.tracker({useWebGL : true});
   ctrack.init(pModel);
 
@@ -36,15 +46,14 @@ function switchToVideo(){
 }
 
 function startVideo(){
-  clearAll();
-  $('video').removeClass('hide');
-  $('image').addClass('hide');
+  // $('image').addClass('hide');
   vid.play();
   ctrack.start(vid);
   drawLoop();
 }
 
 function drawLoop() {
+  console.log('in drawLoop');
   requestAnimFrame(drawLoop);
   ctx.clearRect(0, 0, 450, 500);
   let pos = ctrack.getCurrentPosition()
@@ -64,51 +73,56 @@ img.src = './media/no_makeup.jpg';
 
 
 function animateClean() {
+  console.log('in animateClean');
   ctrack= new clm.tracker({stopOnConvergence : true});
   ctrack.init(pModel);
+  ImageEventListeners();
   ctrack.start(document.getElementById('image'),[6, 42, 437, 437]);
 }
 
 function animate(box) {
+  console.log('in animate');
   ctrack= new clm.tracker({stopOnConvergence : true});
   ctrack.init(pModel);
+  ImageEventListeners();
+
   // console.log(box);
   ctrack.start(document.getElementById('image'), box);
 }
 
+function ImageEventListeners(){
+  // detect if tracker fails to find a face
+  document.addEventListener("clmtrackrNotFound", function(event) {
+    ctrack.stop();
+    alert("The tracking had problems with finding a face in this image. Try selecting the face in the image manually.")
+  }, false);
 
-// detect if tracker fails to find a face
-document.addEventListener("clmtrackrNotFound", function(event) {
-  ctrack.stop();
-  alert("The tracking had problems with finding a face in this image. Try selecting the face in the image manually.")
-}, false);
+  // detect if tracker loses tracking of face
+  document.addEventListener("clmtrackrLost", function(event) {
+    ctrack.stop();
+    alert("The tracking had problems converging on a face in this image. Try selecting the face in the image manually.")
+  }, false);
 
-// detect if tracker loses tracking of face
-document.addEventListener("clmtrackrLost", function(event) {
-  ctrack.stop();
-  alert("The tracking had problems converging on a face in this image. Try selecting the face in the image manually.")
-}, false);
+  // detect if tracker has converged
+  document.addEventListener("clmtrackrConverged", function(event) {
+    pos = ctrack.getCurrentPosition();
+    yOffset = Math.floor(Math.sqrt(Math.pow((pos[0][0]-pos[1][0]),2) + Math.pow((pos[0][1] - pos[1][1]),2))/10);
+    xOffset = Math.floor(Math.sqrt(Math.pow((pos[6][0]-pos[8][0]),2) + Math.pow((pos[6][1] - pos[8][1]),2))/13);
 
-// detect if tracker has converged
-document.addEventListener("clmtrackrConverged", function(event) {
-  pos = ctrack.getCurrentPosition();
-  yOffset = Math.floor(Math.sqrt(Math.pow((pos[0][0]-pos[1][0]),2) + Math.pow((pos[0][1] - pos[1][1]),2))/10);
-  xOffset = Math.floor(Math.sqrt(Math.pow((pos[6][0]-pos[8][0]),2) + Math.pow((pos[6][1] - pos[8][1]),2))/13);
+    eyelinerPosL = (pos.slice(28,32).concat(pos.slice(67,71)).concat([pos[15]]));
+    eyelinerPosR = (pos.slice(23,27).concat(pos.slice(63,67)).concat([pos[19]]));
+    // drawEyelash([pos[24]],canvas);
+    document.getElementById('convergence').innerHTML = "CONVERGED";
+    // document.getElementById('convergence').style.backgroundColor = "#00FF00";
+    $clr1 = $('#color1');
+    $clr2 = $('#color2');
+    $('#picker').removeClass('hide');
+    $('#color1-label').removeClass('hide');
+    $clr1.removeClass('hide')
 
-  eyelinerPosL = (pos.slice(28,32).concat(pos.slice(67,71)).concat([pos[15]]));
-  eyelinerPosR = (pos.slice(23,27).concat(pos.slice(63,67)).concat([pos[19]]));
-  // drawEyelash([pos[24]],canvas);
-  document.getElementById('convergence').innerHTML = "CONVERGED";
-  // document.getElementById('convergence').style.backgroundColor = "#00FF00";
-  $clr1 = $('#color1');
-  $clr2 = $('#color2');
-  $('#picker').removeClass('hide');
-  $('#color1-label').removeClass('hide');
-  $clr1.removeClass('hide')
-
-  $('.feature-btns').removeClass('hide');
-}, false);
-
+    $('.feature-btns').removeClass('hide');
+  }, false);
+}
 
 // manual selection of faces (with jquery imgareaselect plugin)
 function selectBox() {
