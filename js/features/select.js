@@ -1,5 +1,4 @@
 const cc = document.getElementById('image').getContext('2d');
-const vid = document.getElementById('video');
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 const regExp = /\(([^)]+)\)/;
@@ -7,54 +6,9 @@ const makeup = [];
 let pos, yOffset, xOffset, eyelinerPosL, eyelinerPosR,$clr1,$cl2,box;
 let ctrack;
 
-function switchToVideo(){
-  ctrack = new clm.tracker({useWebGL : true});
-  ctrack.init(pModel);
+ctrack= new clm.tracker({stopOnConvergence : true});
+ctrack.init(pModel);
 
-  navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
-  window.URL = window.URL || window.webkitURL || window.msURL || window.mozURL;
-
-  if (navigator.getUserMedia) {
-    const videoSelector = {video : true};
-    if (window.navigator.appVersion.match(/Chrome\/(.*?) /)) {
-          let chromeVersion = parseInt(window.navigator.appVersion.match(/Chrome\/(\d+)\./)[1], 10);
-          if (chromeVersion < 20) {
-            videoSelector = "video";
-          }
-     };
-     navigator.getUserMedia(videoSelector, ( stream ) => {
-        if (vid.mozCaptureStream) {
-          vid.mozSrcObject = stream;
-        } else {
-          vid.src = (window.URL && window.URL.createObjectURL(stream)) || stream;
-        }
-        vid.play();
-      }, function(){
-        alert("Open your webcam. Or use Chrome.")
-    });
-  }
-}
-
-function startVideo(){
-  clearAll();
-  $('video').removeClass('hide');
-  $('image').addClass('hide');
-  vid.play();
-  ctrack.start(vid);
-  drawLoop();
-}
-
-function drawLoop() {
-  requestAnimFrame(drawLoop);
-  ctx.clearRect(0, 0, 450, 500);
-  let pos = ctrack.getCurrentPosition()
-  if (pos) {
-    // console.log("i am here");
-    // console.log(pos);
-  // drawLips(pos.slice(44,62),canvas, 'default');
-  ctrack.draw(canvas);
-  }
-}
 
 const img = new Image();
 img.onload = function() {
@@ -64,14 +18,11 @@ img.src = './media/no_makeup.jpg';
 
 
 function animateClean() {
-  ctrack= new clm.tracker({stopOnConvergence : true});
-  ctrack.init(pModel);
+
   ctrack.start(document.getElementById('image'),[6, 42, 437, 437]);
 }
 
 function animate(box) {
-  ctrack= new clm.tracker({stopOnConvergence : true});
-  ctrack.init(pModel);
   // console.log(box);
   ctrack.start(document.getElementById('image'), box);
 }
@@ -128,4 +79,64 @@ function selectBox() {
     },
     autoHide : true
   });
+}
+function loadImage() {
+  if (fileList.indexOf(fileIndex) < 0) {
+    var reader = new FileReader();
+    reader.onload = (function(theFile) {
+      return function(e) {
+        // check if positions already exist in storage
+
+        // Render thumbnail.
+
+        var img = new Image();
+        img.onload = function() {
+          if (img.height > 500 || img.width > 700) {
+            var rel = img.height/img.width;
+            var neww = 700;
+            var newh = neww*rel;
+            if (newh > 500) {
+              newh = 500;
+              neww = newh/rel;
+            }
+            canvas.setAttribute('width', neww);
+            canvas.setAttribute('height', newh);
+            ctx.drawImage(img,0,0,neww, newh);
+          } else {
+            canvas.setAttribute('width', img.width);
+            canvas.setAttribute('height', img.height);
+            ctx.drawImage(img,0,0,img.width, img.height);
+          }
+        }
+        img.src = e.target.result;
+      };
+    })(fileList[fileIndex]);
+    reader.readAsDataURL(fileList[fileIndex]);
+    ctx.clearRect(0, 0, 720, 576);
+    document.getElementById('convergence').innerHTML = "";
+    ctrack.reset();
+  }
+}
+// set up file selector and variables to hold selections
+var fileList, fileIndex;
+if (window.File && window.FileReader && window.FileList) {
+  function handleFileSelect(evt) {
+    var files = evt.target.files;
+    fileList = [];
+    for (var i = 0;i < files.length;i++) {
+      if (!files[i].type.match('image.*')) {
+        continue;
+      }
+      fileList.push(files[i]);
+    }
+    if (files.length > 0) {
+      fileIndex = 0;
+    }
+
+    loadImage();
+  }
+  document.getElementById('files').addEventListener('change', handleFileSelect, false);
+} else {
+  $('#files').addClass("hide");
+  $('#loadimagetext').addClass("hide");
 }
