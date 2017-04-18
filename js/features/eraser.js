@@ -6,15 +6,15 @@ function addEraser() {
   let strokeWidth=5;
   let mouseX;
   let mouseY;
-  let canvasOffset=$("#canvas").offset();
+  let canvasOffset=$("#container").offset();
   let offsetX=canvasOffset.left;
   let offsetY=canvasOffset.top;
   let isMouseDown=false;
-
-
   function handleMouseDown(e){
-    mouseX=parseInt(e.clientX-offsetX);
-    mouseY=parseInt(e.clientY-offsetY);
+    mouseX=parseInt(e.offsetX);
+    mouseY=parseInt(e.offsetY);
+
+
 
     // Put your mousedown stuff here
     lastX=mouseX;
@@ -23,27 +23,37 @@ function addEraser() {
   }
 
   function handleMouseUp(e){
-    mouseX=parseInt(e.clientX-offsetX);
-    mouseY=parseInt(e.clientY-offsetY);
+    mouseX=parseInt(e.offsetX);
+    mouseY=parseInt(e.offsetY);
 
     // Put your mouseup stuff here
     isMouseDown=false;
   }
 
   function handleMouseOut(e){
-    mouseX=parseInt(e.clientX-offsetX);
-    mouseY=parseInt(e.clientY-offsetY);
+    mouseX=parseInt(e.offsetX);
+    mouseY=parseInt(e.offsetY);
 
     // Put your mouseOut stuff here
     isMouseDown=false;
   }
 
   function handleMouseMove(e){
-    mouseX=parseInt(e.clientX-offsetX);
-    mouseY=parseInt(e.clientY-offsetY);
+    mouseX=parseInt(e.offsetX);
+    mouseY=parseInt(e.offsetY);
+    // console.log(e);
+    //
+    //
+    // console.log(offsetX, offsetY);
 
     // Put your mousemove stuff here
     if(isMouseDown){
+      // console.log("in eraser");
+
+      // ctx.globalCompositeOperation="source-over";
+      // ctx.moveTo(lastX,lastY);
+      // ctx.lineTo(mouseX,mouseY);
+      // ctx.stroke();
       ctx.beginPath();
       ctx.globalCompositeOperation="destination-out";
       ctx.arc(lastX,lastY,8,0,Math.PI*2,false);
