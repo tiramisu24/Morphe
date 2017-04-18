@@ -53,7 +53,6 @@ function startVideo(){
 }
 
 function drawLoop() {
-  console.log('in drawLoop');
   requestAnimFrame(drawLoop);
   ctx.clearRect(0, 0, 450, 500);
   let pos = ctrack.getCurrentPosition()
