@@ -33,14 +33,12 @@ p{
 	width: 25vw;
 	padding: 15px;
 	border: 1px solid grey;
-	/*background-color: pink;*/
 }
 .instructions{
 	padding-top: 15px;
 }
 .instruction-header{
 	position: absolute;
-	/*background-color: wheat;*/
 }
 .instruction-header > h3{
 	position: relative;
@@ -51,7 +49,6 @@ p{
 
 .color-picker{
 	width: 25vw;
-	background-color: green;
 }
 .custom-upload{
 	 font: 11px system-ui;
@@ -65,7 +62,7 @@ p{
 }
 
 .feature-btns{
-	margin: 0;
+	margin: 5px;
 	color: white;
 	width: 6.2em;
 	padding: 5px 15px;

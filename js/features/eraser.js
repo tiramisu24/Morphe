@@ -1,4 +1,17 @@
+
+function endEraser(){
+  const canvas=document.getElementById("canvas");
+  const ctx=canvas.getContext("2d");
+  ctx.globalCompositeOperation="source-over";
+}
+let finish = true
+
 function addEraser() {
+  finish = !finish
+  console.log(finish);
+  if(finish){
+    endEraser()
+  }
   const canvas=document.getElementById("canvas");
   const ctx=canvas.getContext("2d");
   let lastX;
@@ -13,10 +26,6 @@ function addEraser() {
   function handleMouseDown(e){
     mouseX=parseInt(e.offsetX);
     mouseY=parseInt(e.offsetY);
-
-
-
-    // Put your mousedown stuff here
     lastX=mouseX;
     lastY=mouseY;
     isMouseDown=true;
@@ -25,28 +34,18 @@ function addEraser() {
   function handleMouseUp(e){
     mouseX=parseInt(e.offsetX);
     mouseY=parseInt(e.offsetY);
-
-    // Put your mouseup stuff here
     isMouseDown=false;
   }
 
   function handleMouseOut(e){
     mouseX=parseInt(e.offsetX);
     mouseY=parseInt(e.offsetY);
-
-    // Put your mouseOut stuff here
     isMouseDown=false;
   }
 
   function handleMouseMove(e){
     mouseX=parseInt(e.offsetX);
     mouseY=parseInt(e.offsetY);
-    // console.log(e);
-    //
-    //
-    // console.log(offsetX, offsetY);
-
-    // Put your mousemove stuff here
     if(isMouseDown){
       // console.log("in eraser");
 
