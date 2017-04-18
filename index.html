@@ -61,6 +61,7 @@
 		<script type="text/javascript" src="./js/features/draw_highlight.js"></script>
 		<script type="text/javascript" src="./js/features/draw_eyelash.js"></script>
 		<script type="text/javascript" src="./js/features/draw_features.js"></script>
+		<script type="text/javascript" src="./js/features/eraser.js"></script>
 
 
 		<div class="main-content">
@@ -71,8 +72,15 @@
 					</div>
 					<div class="text">
 						<li>Click Start to play with demo picture</li>
-						<li>Click Upload Image, Switch to Video to use your own Media. Clicking start  </li>
-						Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+						<li>Click Upload Image, Switch to Video to use your own Media</li>
+						<li>If app, cannot find the image, please manually select the face by clicking
+								Manually Select and drawing the box</li>
+						<li>When you are satifisied with that the internet sees as your face, click Start applying makeup!</li>
+						<li>Use the handy color wheel to pick your colors. Eyeshadow allows you to use two colors for gradient</li>
+						<li>Click the feature to indicate a change of color</li>
+						<li>Click again to apply color to picture</li>
+						<li>Subsequent clicks will increase intensity and area of color!</li>
+						<li>You can clear the canvas by clicking the Clear button</li>
 					</div>
 				</div>
 			</div>
@@ -105,7 +113,9 @@
 					<button id = 'lips-button' class = 'feature-btns hide' onclick="applyLips()">Lips</button>
 					<button id = 'eyebrows-button' class = 'feature-btns hide' onclick="applyEyebrows()">Eyebrows</button>
 					<button id = 'blush-button' class = 'feature-btns hide' onclick="applyBlush()">Blush</button>
-					<button id = 'clear-button' class = 'feature-btns hide' onclick="clearAll()">Clear</button>
+					<button id = 'clear-button' class = 'feature-btns hide' onclick="clearAll()">Wash Face</button>
+					<button id = 'clear-button' class = 'feature-btns hide' onclick="addEraser()">Cleansing Pad</button>
+
 				</div>
 			</div>
 			<div class="color-picker">
