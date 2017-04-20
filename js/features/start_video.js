@@ -1,11 +1,12 @@
+let vid = document.getElementById('video');
+// let canvas = document.getElementById('canvas');
+// let ctx = canvas.getContext('2d');
+// let makeup = [];
+// let pos, yOffset, xOffset, eyelinerPosL, eyelinerPosR,$clr1,$cl2,box;
+// let startVideo, drawloop;
+let startVideo;
 function switchToVideo(){
-  const vid = document.getElementById('video');
-  const canvas = document.getElementById('canvas');
-  const ctx = canvas.getContext('2d');
-  const regExp = /\(([^)]+)\)/;
-  const makeup = [];
-  let pos, yOffset, xOffset, eyelinerPosL, eyelinerPosR,$clr1,$cl2,box;
-  let ctrack;
+
 
   clearAll();
   $('#video').removeClass('hide');
@@ -17,11 +18,11 @@ function switchToVideo(){
   navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
   window.URL = window.URL || window.webkitURL || window.msURL || window.mozURL;
 
-  function enablestart() {
-    const startbutton = document.getElementById('startbutton');
-    startbutton.value = "start";
-    startbutton.disabled = null;
-  }
+  // function enablestart() {
+  //   const startbutton = document.getElementById('startbutton');
+  //   startbutton.value = "start";
+  //   startbutton.disabled = null;
+  // }
 
   if (navigator.getUserMedia) {
     const videoSelector = {video : true};
@@ -43,18 +44,26 @@ function switchToVideo(){
     });
   }
 
-  function startVideo(){
+  startVideo = () => {
     vid.play();
     ctrack.start(vid);
+    unlockMakeUp();
     drawLoop();
   }
 
-  function drawLoop() {
+  drawLoop =() => {
     requestAnimFrame(drawLoop);
     clearAll();
-    let pos = ctrack.getCurrentPosition()
+    pos = ctrack.getCurrentPosition()
     if (pos) {
-    ctrack.draw(canvas);
+      setPos();
+
+      applyEyebrows();
+      applyBlush();
+      applyLips();
+      applyEyeliner();
+      applyEyeshadow();
+    // ctrack.draw(canvas);
     }
   }
 

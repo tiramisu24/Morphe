@@ -2,7 +2,7 @@
  * clmtrackr library (https://www.github.com/auduno/clmtrackr/)
  *
  * Copyright (c) 2013, Audun Mathias Øygard
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
  *
  * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
@@ -15,7 +15,7 @@
 
 var clm = {
 	tracker : function(params) {
-		
+
 		if (!params) params = {};
 		if (params.constantVelocity === undefined) params.constantVelocity = true;
 		if (params.searchWindow === undefined) params.searchWindow = 11;
@@ -24,30 +24,30 @@ var clm = {
 		if (params.stopOnConvergence === undefined) params.stopOnConvergence = false;
 		if (params.weightPoints === undefined) params.weightPoints = undefined;
 		if (params.sharpenResponse === undefined) params.sharpenResponse = false;
-		
+
 		var numPatches, patchSize, numParameters, patchType;
 		var gaussianPD;
 		var eigenVectors, eigenValues;
 		var sketchCC, sketchW, sketchH, sketchCanvas;
 		var candidate;
 		var weights, model, biases;
-		
+
 		var sobelInit = false;
 		var lbpInit = false;
-		
+
 		var currentParameters = [];
 		var currentPositions = [];
 		var previousParameters = [];
 		var previousPositions = [];
-		
+
 		var patches = [];
 		var responses = [];
 		var meanShape = [];
-		
+
 		var responseMode = 'single';
 		var responseList = ['raw'];
 		var responseIndex = 0;
-		
+
 		/*
 		It's possible to experiment with the sequence of variances used for the finding the maximum in the KDE.
 		This sequence is pretty arbitrary, but was found to be okay using some manual testing.
@@ -56,21 +56,21 @@ var clm = {
 		//var varianceSeq = [3,1.5,0.75];
 		//var varianceSeq = [6,3,0.75];
 		var PDMVariance = 0.7;
-		
+
 		var relaxation = 0.1;
-		
+
 		var first = true;
-		
+
 		var convergenceLimit = 0.01;
-		
+
 		var learningRate = [];
 		var stepParameter = 1.25;
 		var prevCostFunc = []
-		
+
 		var searchWindow;
 		var modelWidth, modelHeight;
 		var halfSearchWindow, vecProbs, responsePixels;
-		
+
 		if(typeof Float64Array !== 'undefined') {
 			var updatePosition = new Float64Array(2);
 			var vecpos = new Float64Array(2);
@@ -79,9 +79,9 @@ var clm = {
 			var vecpos = new Array(2);
 		}
 		var pw, pl, pdataLength;
-		
+
 		var facecheck_count = 0;
-		
+
 		var webglFi, svmFi, mosseCalc;
 
 		var scoringCanvas = document.createElement('canvas');
@@ -99,20 +99,20 @@ var clm = {
 		var nose_position = [0.0,0.0];
 		var lep, rep, mep;
 		var runnerTimeout, runnerElement, runnerBox;
-		
+
 		var pointWeights;
 
 		var halfPI = Math.PI/2;
-		
+
 		/*
 		 *	load model data, initialize filters, etc.
 		 *
 		 *	@param	<Object>	pdm model object
 		 */
 		this.init = function(pdmmodel) {
-			
+
 			model = pdmmodel;
-			
+
 			// load from model
 			patchType = model.patchModel.patchType;
 			numPatches = model.patchModel.numPatches;
@@ -125,14 +125,14 @@ var clm = {
 			numParameters = model.shapeModel.numEvalues;
 			modelWidth = model.patchModel.canvasSize[0];
 			modelHeight = model.patchModel.canvasSize[1];
-			
+
 			// set up canvas to work on
 			sketchCanvas = document.createElement('canvas');
 			sketchCC = sketchCanvas.getContext('2d');
 
 			sketchW = sketchCanvas.width = modelWidth + (searchWindow-1) + patchSize-1;
 			sketchH = sketchCanvas.height = modelHeight + (searchWindow-1) + patchSize-1;
-			
+
 			if (model.hints && mosseFilter && left_eye_filter && right_eye_filter && nose_filter) {
 				//var mossef_lefteye = new mosseFilter({drawResponse : document.getElementById('overlay2')});
 				mossef_lefteye = new mosseFilter();
@@ -154,7 +154,7 @@ var clm = {
 					eigenVectors[i][j] = model.shapeModel.eigenVectors[i][j];
 				}
 			}
-			
+
 			// load mean shape
 			for (var i = 0; i < numPatches;i++) {
 				meanShape[i] = [model.shapeModel.meanShape[i][0], model.shapeModel.meanShape[i][1]];
@@ -171,7 +171,7 @@ var clm = {
 			}
 			msmodelwidth = msxmax-msxmin;
 			msmodelheight = msymax-msymin;
-			
+
 			// get scoringweights if they exist
 			if (model.scoring) {
 				scoringWeights = new Float64Array(model.scoring.coef);
@@ -179,13 +179,13 @@ var clm = {
 				scoringCanvas.width = model.scoring.size[0];
 				scoringCanvas.height = model.scoring.size[1];
 			}
-			
+
 			// load eigenvalues
 			eigenValues = model.shapeModel.eigenValues;
-			
+
 			weights = model.patchModel.weights;
 			biases = model.patchModel.bias;
-			
+
 			// precalculate gaussianPriorDiagonal
 			gaussianPD = numeric.rep([numParameters+4, numParameters+4],0);
 			// set values and append manual inverse
@@ -196,11 +196,11 @@ var clm = {
 					gaussianPD[i+4][i+4] = 1/eigenValues[i];
 				}
 			}
-			
+
 			for (var i = 0;i < numParameters+4;i++) {
 				currentParameters[i] = 0;
 			}
-			
+
 			if (patchType == "SVM") {
 				var webGLContext;
 				var webGLTestCanvas = document.createElement('canvas');
@@ -209,15 +209,15 @@ var clm = {
 					if (!webGLContext || !webGLContext.getExtension('OES_texture_float')) {
 						webGLContext = null;
 					}
-				} 
-				
+				}
+
 				if (webGLContext && params.useWebGL && (typeof(webglFilter) !== "undefined")) {
 					webglFi = new webglFilter();
 					try {
 						webglFi.init(weights, biases, numPatches, searchWindow+patchSize-1, searchWindow+patchSize-1, patchSize, patchSize);
 						if ('lbp' in weights) lbpInit = true;
 						if ('sobel' in weights) sobelInit = true;
-					} 
+					}
 					catch(err) {
 						alert("There was a problem setting up webGL programs, falling back to slightly slower javascript version. :(");
 						webglFi = undefined;
@@ -235,7 +235,7 @@ var clm = {
 				mosseCalc = new mosseFilterResponses();
 				mosseCalc.init(weights, numPatches, patchSize, patchSize);
 			}
-			
+
 			if (patchType == "SVM") {
 				pw = pl = patchSize+searchWindow-1;
 			} else {
@@ -255,14 +255,14 @@ var clm = {
 					patches[i] = new Array(pdataLength);
 				}
 			}
-			
+
 			for (var i = 0;i < numPatches;i++) {
 				learningRate[i] = 1.0;
 				prevCostFunc[i] = 0.0;
 			}
 
 			if (params.weightPoints) {
-				// weighting of points 
+				// weighting of points
 				pointWeights = [];
 				for (var i = 0;i < numPatches;i++) {
 					if (i in params.weightPoints) {
@@ -276,7 +276,7 @@ var clm = {
 				pointWeights = numeric.diag(pointWeights);
 			}
 		}
-		
+
 		/*
 		 *	starts the tracker to run on a regular interval
 		 */
@@ -308,11 +308,11 @@ var clm = {
 		 *  TODO: should be able to take img element as well
 		 */
 		this.track = function(element, box) {
-			
+
 			var scaling, translateX, translateY, rotation;
 			var croppedPatches = [];
 			var ptch, px, py;
-						
+
 			if (first) {
 				// do viola-jones on canvas to get initial guess, if we don't have any points
 				var gi = getInitialPosition(element, box);
@@ -321,18 +321,18 @@ var clm = {
 					var evt = document.createEvent("Event");
 					evt.initEvent("clmtrackrNotFound", true, true);
 					document.dispatchEvent(evt)
-					
+
 					return false;
 				}
 				scaling = gi[0];
 				rotation = gi[1];
 				translateX = gi[2];
 				translateY = gi[3];
-				
+
 				first = false;
 			} else {
 				facecheck_count += 1;
-				
+
 				if (params.constantVelocity) {
 					// calculate where to get patches via constant velocity prediction
 					if (previousParameters.length >= 2) {
@@ -342,7 +342,7 @@ var clm = {
 						}
 					}
 				}
-				
+
 				// change translation, rotation and scale parameters
 				rotation = halfPI - Math.atan((currentParameters[0]+1)/currentParameters[1]);
 				if (rotation > halfPI) {
@@ -352,23 +352,23 @@ var clm = {
 				translateX = currentParameters[2];
 				translateY = currentParameters[3];
 			}
-			
+
 			// copy canvas to a new dirty canvas
 			sketchCC.save();
-			
+
 			// clear canvas
 			sketchCC.clearRect(0, 0, sketchW, sketchH);
-			
+
 			sketchCC.scale(1/scaling, 1/scaling);
 			sketchCC.rotate(-rotation);
 			sketchCC.translate(-translateX, -translateY);
-			
+
 			sketchCC.drawImage(element, 0, 0, element.width, element.height);
-			
+
 			sketchCC.restore();
 			//	get cropped images around new points based on model parameters (not scaled and translated)
 			var patchPositions = calculatePositions(currentParameters, false);
-			
+
 			// check whether tracking is ok
 			if (scoringWeights && (facecheck_count % 10 == 0)) {
 				if (!checkTracking()) {
@@ -379,12 +379,12 @@ var clm = {
 						currentParameters[i] = 0;
 						previousParameters = [];
 					}
-					
+
 					// send event to signal that tracking was lost
 					var evt = document.createEvent("Event");
 					evt.initEvent("clmtrackrLost", true, true);
 					document.dispatchEvent(evt)
-					
+
 					return false;
 				}
 			}
@@ -396,7 +396,7 @@ var clm = {
 				py = patchPositions[i][1]-(pl/2);
 				ptch = sketchCC.getImageData(Math.round(px), Math.round(py), pw, pl);
 				pdata = ptch.data;
-				
+
 				// convert to grayscale
 				pmatrix = patches[i];
 				for (var j = 0;j < pdataLength;j++) {
@@ -404,7 +404,7 @@ var clm = {
 					pmatrix[j] = grayscaleColor;
 				}
 			}
-			
+
 			/*print weights*/
 			/*sketchCC.clearRect(0, 0, sketchW, sketchH);
 			var nuWeights;
@@ -412,7 +412,7 @@ var clm = {
 				nuWeights = weights[i].map(function(x) {return x*2000+127;});
 				drawData(sketchCC, nuWeights, patchSize, patchSize, false, patchPositions[i][0]-(patchSize/2), patchPositions[i][1]-(patchSize/2));
 			}*/
-			
+
 			// print patches
 			/*sketchCC.clearRect(0, 0, sketchW, sketchH);
 			for (var i = 0;i < numPatches;i++) {
@@ -445,47 +445,47 @@ var clm = {
 			/*sketchCC.clearRect(0, 0, sketchW, sketchH);
 			var nuWeights;
 			for (var i = 0;i < numPatches;i++) {
-		
+
 				nuWeights = [];
 				for (var j = 0;j < responses[i].length;j++) {
 					nuWeights.push(responses[i][j]*255);
 				}
-				
+
 				//if ([27,32,44,50].indexOf(i) > -1) {
 				//	drawData(sketchCC, nuWeights, searchWindow, searchWindow, false, patchPositions[i][0]-((searchWindow-1)/2), patchPositions[i][1]-((searchWindow-1)/2));
 				//}
 				drawData(sketchCC, nuWeights, searchWindow, searchWindow, false, patchPositions[i][0]-((searchWindow-1)/2), patchPositions[i][1]-((searchWindow-1)/2));
 			}*/
-			
+
 			// iterate until convergence or max 10, 20 iterations?:
 			var originalPositions = currentPositions;
 			var jac;
 			var meanshiftVectors = [];
-			
+
 			for (var i = 0; i < varianceSeq.length; i++) {
-				
+
 				// calculate jacobian
 				jac = createJacobian(currentParameters, eigenVectors);
 
 				// for debugging
 				//var debugMVs = [];
 				//
-				
+
 				var opj0, opj1;
-				
+
 				for (var j = 0;j < numPatches;j++) {
 					opj0 = originalPositions[j][0]-((searchWindow-1)*scaling/2);
 					opj1 = originalPositions[j][1]-((searchWindow-1)*scaling/2);
-					
+
 					// calculate PI x gaussians
 					var vpsum = gpopt(searchWindow, currentPositions[j], updatePosition, vecProbs, responses, opj0, opj1, j, varianceSeq[i], scaling);
-					
+
 					// calculate meanshift-vector
 					gpopt2(searchWindow, vecpos, updatePosition, vecProbs, vpsum, opj0, opj1, scaling);
-					
+
 					// for debugging
 					//var debugMatrixMV = gpopt2(searchWindow, vecpos, updatePosition, vecProbs, vpsum, opj0, opj1);
-					
+
 					// evaluate here whether to increase/decrease stepSize
 					/*if (vpsum >= prevCostFunc[j]) {
 						learningRate[j] *= stepParameter;
@@ -493,7 +493,7 @@ var clm = {
 						learningRate[j] = 1.0;
 					}
 					prevCostFunc[j] = vpsum;*/
-					
+
 					// compute mean shift vectors
 					// extrapolate meanshiftvectors
 					/*var msv = [];
@@ -501,14 +501,14 @@ var clm = {
 					msv[1] = learningRate[j]*(vecpos[1] - currentPositions[j][1]);
 					meanshiftVectors[j] = msv;*/
 					meanshiftVectors[j] = [vecpos[0] - currentPositions[j][0], vecpos[1] - currentPositions[j][1]];
-					
+
 					//if (isNaN(msv[0]) || isNaN(msv[1])) debugger;
-					
+
 					//for debugging
 					//debugMVs[j] = debugMatrixMV;
 					//
 				}
-				
+
 				// draw meanshiftVector
 				/*sketchCC.clearRect(0, 0, sketchW, sketchH);
 				var nuWeights;
@@ -516,13 +516,13 @@ var clm = {
 					nuWeights = debugMVs[npidx].map(function(x) {return x*255*500;});
 					drawData(sketchCC, nuWeights, searchWindow, searchWindow, false, patchPositions[npidx][0]-((searchWindow-1)/2), patchPositions[npidx][1]-((searchWindow-1)/2));
 				}*/
-				
+
 				var meanShiftVector = numeric.rep([numPatches*2, 1],0.0);
 				for (var k = 0;k < numPatches;k++) {
 					meanShiftVector[k*2][0] = meanshiftVectors[k][0];
 					meanShiftVector[(k*2)+1][0] = meanshiftVectors[k][1];
 				}
-				
+
 				// compute pdm parameter update
 				//var prior = numeric.mul(gaussianPD, PDMVariance);
 				var prior = numeric.mul(gaussianPD, varianceSeq[i]);
@@ -545,14 +545,14 @@ var clm = {
 				var paramUpdateRight = numeric.sub(priorP, jtv);
 				var paramUpdate = numeric.dot(numeric.inv(paramUpdateLeft), paramUpdateRight);
 				//var paramUpdate = numeric.solve(paramUpdateLeft, paramUpdateRight, true);
-				
+
 				var oldPositions = currentPositions;
-				
+
 				// update estimated parameters
 				for (var k = 0;k < numParameters+4;k++) {
 					currentParameters[k] -= paramUpdate[k];
 				}
-				
+
 				// clipping of parameters if they're too high
 				var clip;
 				for (var k = 0;k < numParameters;k++) {
@@ -564,12 +564,12 @@ var clm = {
 							currentParameters[k+4] = -clip;
 						}
 					}
-					
+
 				}
-				
+
 				// update current coordinates
 				currentPositions = calculatePositions(currentParameters, true);
-				
+
 				// check if converged
 				// calculate norm of parameterdifference
 				var positionNorm = 0;
@@ -580,29 +580,29 @@ var clm = {
 					positionNorm += ((pnsq_x*pnsq_x) + (pnsq_y*pnsq_y));
 				}
 				//console.log("positionnorm:"+positionNorm);
-				
+
 				// if norm < limit, then break
 				if (positionNorm < convergenceLimit) {
 					break;
 				}
-			
+
 			}
-			
+
 			if (params.constantVelocity) {
 				// add current parameter to array of previous parameters
 				previousParameters.push(currentParameters.slice());
 				previousParameters.splice(0, previousParameters.length == 3 ? 1 : 0);
 			}
-			
+
 			// store positions, for checking convergence
 			previousPositions.splice(0, previousPositions.length == 10 ? 1 : 0);
 			previousPositions.push(currentPositions.slice(0));
-			
+
 			// send an event on each iteration
 			var evt = document.createEvent("Event");
 			evt.initEvent("clmtrackrIteration", true, true);
 			document.dispatchEvent(evt)
-			
+
 			if (this.getConvergence() < 0.5) {
 				// we must get a score before we can say we've converged
 				if (scoringHistory.length >= 5) {
@@ -615,7 +615,7 @@ var clm = {
 					document.dispatchEvent(evt)
 				}
 			}
-			
+
 			// return new points
 			return currentPositions;
 		}
@@ -639,19 +639,19 @@ var clm = {
 		 */
 		this.draw = function(canvas, pv, path) {
 			// if no previous points, just draw in the middle of canvas
-			
+
 			var params;
 			if (pv === undefined) {
 				params = currentParameters.slice(0);
 			} else {
 				params = pv.slice(0);
 			}
-			
+
 			var cc = canvas.getContext('2d');
 			cc.fillStyle = "rgb(200,200,200)";
 			cc.strokeStyle = "rgb(130,255,50)";
 			//cc.lineWidth = 1;
-			
+
 			var paths;
 			if (path === undefined) {
 				paths = model.path.normal;
@@ -682,7 +682,7 @@ var clm = {
 		this.calculatePositions = function(parameters) {
 			return calculatePositions(parameters, true);
 		}
-		
+
 		/*
 		 *	get coordinates of current model fit
 		 */
@@ -693,7 +693,7 @@ var clm = {
 				return currentPositions;
 			}
 		}
-		
+
 		/*
 		 *	get parameters of current model fit
 		 */
@@ -707,13 +707,13 @@ var clm = {
 		 */
 		this.getConvergence = function() {
 			if (previousPositions.length < 10) return 999999;
-			
+
 			var prevX = 0.0;
 			var prevY = 0.0;
 			var currX = 0.0;
 			var currY = 0.0;
-			
-			// average 5 previous positions 
+
+			// average 5 previous positions
 			for (var i = 0;i < 5;i++) {
 				for (var j = 0;j < numPatches;j++) {
 					prevX += previousPositions[i][j][0];
@@ -722,7 +722,7 @@ var clm = {
 			}
 			prevX /= 5;
 			prevY /= 5;
-			
+
 			// average 5 positions before that
 			for (var i = 5;i < 10;i++) {
 				for (var j = 0;j < numPatches;j++) {
@@ -740,7 +740,7 @@ var clm = {
 			msavg /= previousPositions.length
 			return msavg;
 		}
-		
+
 		/*
 		 * Set response mode (only useful if webGL is available)
 		 * mode : either "single", "blend" or "cycle"
@@ -769,7 +769,7 @@ var clm = {
 					if (['raw', 'sobel', 'lbp'].indexOf(list[i]) < 0) {
 						console.log("Unknown element in responsemode list : '"+list[i]+"'. No changes made.");
 					}
-					// check whether filters are initialized 
+					// check whether filters are initialized
 					if (list[i] == 'sobel' && sobelInit == false) {
 						console.log("The sobel filters have not been initialized! No changes made.");
 					}
@@ -793,7 +793,7 @@ var clm = {
 				if (!tracking) continue;
 			}
 		}.bind(this);
-		
+
 		var getWebGLResponsesType = function(type, patches) {
 			if (type == 'lbp') {
 				return webglFi.getLBPResponses(patches);
@@ -803,7 +803,7 @@ var clm = {
 				return webglFi.getSobelResponses(patches);
 			}
 		}
-		
+
 		var getWebGLResponses = function(patches) {
 			if (responseMode == 'single') {
 				return getWebGLResponsesType(responseList[0], patches);
@@ -835,7 +835,7 @@ var clm = {
 
 		// generates the jacobian matrix used for optimization calculations
 		var createJacobian = function(parameters, eigenVectors) {
-			
+
 			var jacobian = numeric.rep([2*numPatches, numParameters+4],0.0);
 			var j0,j1;
 			for (var i = 0;i < numPatches;i ++) {
@@ -871,10 +871,10 @@ var clm = {
 					jacobian[(i*2)+1][j+4] = j1;
 				}
 			}
-			
+
 			return jacobian;
 		}
-		
+
 		// calculate positions from parameters
 		var calculatePositions = function(parameters, useTransforms) {
 			var x, y, a, b;
@@ -895,10 +895,10 @@ var clm = {
 				}
 				positions[i] = [x,y];
 			}
-			
+
 			return positions;
 		}
-		
+
 		// detect position of face on canvas/video element
 		var detectPosition = function(el) {
 			var canvas = document.createElement('canvas');
@@ -906,30 +906,30 @@ var clm = {
 			canvas.height = el.height;
 			var cc = canvas.getContext('2d');
 			cc.drawImage(el, 0, 0, el.width, el.height);
-			
+
 			// do viola-jones on canvas to get initial guess, if we don't have any points
 			/*var comp = ccv.detect_objects(
 				ccv.grayscale(canvas), ccv.cascade, 5, 1
 			);*/
-			
+
 			var jf = new jsfeat_face(canvas);
 			var comp = jf.findFace();
-			
+
 			if (comp.length > 0) {
 				candidate = comp[0];
 			} else {
 				return false;
 			}
-			
+
 			for (var i = 1; i < comp.length; i++) {
 				if (comp[i].confidence > candidate.confidence) {
 					candidate = comp[i];
 				}
 			}
-			
+
 			return candidate;
 		}
-		
+
 		// part one of meanshift calculation
 		var gpopt = function(responseWidth, currentPositionsj, updatePosition, vecProbs, responses, opj0, opj1, j, variance, scaling) {
 			var pos_idx = 0;
@@ -943,20 +943,20 @@ var clm = {
 					dx = currentPositionsj[0] - updatePosition[0];
 					dy = currentPositionsj[1] - updatePosition[1];
 					vecProbs[pos_idx] = responses[j][pos_idx] * Math.exp(-0.5*((dx*dx)+(dy*dy))/(variance*scaling));
-					
+
 					vpsum += vecProbs[pos_idx];
 					pos_idx++;
 				}
 			}
-			
+
 			return vpsum;
 		}
-		
+
 		// part two of meanshift calculation
 		var gpopt2 = function(responseWidth, vecpos, updatePosition, vecProbs, vpsum, opj0, opj1, scaling) {
 			//for debugging
 			//var vecmatrix = [];
-			
+
 			var pos_idx = 0;
 			var vecsum = 0;
 			vecpos[0] = 0;
@@ -966,10 +966,10 @@ var clm = {
 				for (var l = 0;l < responseWidth;l++) {
 					updatePosition[0] = opj0+(l*scaling);
 					vecsum = vecProbs[pos_idx]/vpsum;
-					
+
 					//for debugging
 					//vecmatrix[k*responseWidth + l] = vecsum;
-					
+
 					vecpos[0] += vecsum*updatePosition[0];
 					vecpos[1] += vecsum*updatePosition[1];
 					pos_idx++;
@@ -978,9 +978,9 @@ var clm = {
 			// for debugging
 			//return vecmatrix;
 		}
-		
+
 		// calculate score of current fit
-		var checkTracking = function() {			
+		var checkTracking = function() {
 			scoringContext.drawImage(sketchCanvas, Math.round(msxmin+(msmodelwidth/4.5)), Math.round(msymin-(msmodelheight/12)), Math.round(msmodelwidth-(msmodelwidth*2/4.5)), Math.round(msmodelheight-(msmodelheight/12)), 0, 0, 20, 22);
 			// getImageData of canvas
 			var imgData = scoringContext.getImageData(0,0,20,22);
@@ -1007,7 +1007,7 @@ var clm = {
 				}
 				sd /= (20*22 - 1)
 				sd = Math.sqrt(sd);
-				
+
 				var score = 0;
 				for (var i = 0;i < 20*22;i++) {
 					scoringData[i] = (scoringData[i]-mean)/sd;
@@ -1032,7 +1032,7 @@ var clm = {
 			}
 			return true;
 		}
-		
+
 		// get initial starting point for model
 		var getInitialPosition = function(element, box) {
 			var translateX, translateY, scaling, rotation;
@@ -1045,15 +1045,15 @@ var clm = {
 					return false;
 				}
 			}
-			
+
 			if (model.hints && mosseFilter && left_eye_filter && right_eye_filter && nose_filter) {
 				var noseFilterWidth = candidate.width * 4.5/10;
 				var eyeFilterWidth = candidate.width * 6/10;
-				
+
 				// detect position of eyes and nose via mosse filter
 				//
 				/*element.pause();
-				
+
 				var canvasContext = document.getElementById('overlay2').getContext('2d')
 				canvasContext.clearRect(0,0,500,375);
 				canvasContext.strokeRect(candidate.x, candidate.y, candidate.width, candidate.height);*/
@@ -1068,52 +1068,52 @@ var clm = {
 				left_eye_position[1] = Math.round(candidate.y+candidate.height*(2/5)-(eyeFilterWidth/2))+left_result[1];
 				nose_position[0] = Math.round(candidate.x+(candidate.width/2)-(noseFilterWidth/2))+nose_result[0];
 				nose_position[1] = Math.round(candidate.y+candidate.height*(5/8)-(noseFilterWidth/2))+nose_result[1];
-				
+
 				//
 				/*canvasContext.strokeRect(Math.round(candidate.x+(candidate.width*3/4)-(eyeFilterWidth/2)), Math.round(candidate.y+candidate.height*(2/5)-(eyeFilterWidth/2)), eyeFilterWidth, eyeFilterWidth);
 				canvasContext.strokeRect(Math.round(candidate.x+(candidate.width/4)-(eyeFilterWidth/2)), Math.round(candidate.y+candidate.height*(2/5)-(eyeFilterWidth/2)), eyeFilterWidth, eyeFilterWidth);
 				//canvasContext.strokeRect(Math.round(candidate.x+(candidate.width/2)-(noseFilterWidth/2)), Math.round(candidate.y+candidate.height*(3/4)-(noseFilterWidth/2)), noseFilterWidth, noseFilterWidth);
 				canvasContext.strokeRect(Math.round(candidate.x+(candidate.width/2)-(noseFilterWidth/2)), Math.round(candidate.y+candidate.height*(5/8)-(noseFilterWidth/2)), noseFilterWidth, noseFilterWidth);
-				
+
 				canvasContext.fillStyle = "rgb(0,0,250)";
 				canvasContext.beginPath();
 				canvasContext.arc(left_eye_position[0], left_eye_position[1], 3, 0, Math.PI*2, true);
 				canvasContext.closePath();
 				canvasContext.fill();
-				
+
 				canvasContext.beginPath();
 				canvasContext.arc(right_eye_position[0], right_eye_position[1], 3, 0, Math.PI*2, true);
 				canvasContext.closePath();
 				canvasContext.fill();
-				
+
 				canvasContext.beginPath();
 				canvasContext.arc(nose_position[0], nose_position[1], 3, 0, Math.PI*2, true);
 				canvasContext.closePath();
 				canvasContext.fill();
-				
+
 				debugger;
 				element.play()
 				canvasContext.clearRect(0,0,element.width,element.height);*/
 				//
-				
+
 				// get eye and nose positions of model
 				var lep = model.hints.leftEye;
 				var rep = model.hints.rightEye;
 				var mep = model.hints.nose;
-				
+
 				// get scaling, rotation, etc. via procrustes analysis
 				var procrustes_params = procrustes([left_eye_position, right_eye_position, nose_position], [lep, rep, mep]);
 				translateX = procrustes_params[0];
 				translateY = procrustes_params[1];
 				scaling = procrustes_params[2];
 				rotation = procrustes_params[3];
-				
+
 				//element.play();
-				
+
 				//var maxscale = 1.10;
 				//if ((scaling*modelHeight)/candidate.height < maxscale*0.7) scaling = (maxscale*0.7*candidate.height)/modelHeight;
 				//if ((scaling*modelHeight)/candidate.height > maxscale*1.2) scaling = (maxscale*1.2*candidate.height)/modelHeight;
-				
+
 				/*var smean = [0,0];
 				smean[0] += lep[0];
 				smean[1] += lep[1];
@@ -1123,34 +1123,34 @@ var clm = {
 				smean[1] += mep[1];
 				smean[0] /= 3;
 				smean[1] /= 3;
-				
+
 				var nulep = [(lep[0]*scaling*Math.cos(-rotation)+lep[1]*scaling*Math.sin(-rotation))+translateX, (lep[0]*scaling*(-Math.sin(-rotation)) + lep[1]*scaling*Math.cos(-rotation))+translateY];
 				var nurep = [(rep[0]*scaling*Math.cos(-rotation)+rep[1]*scaling*Math.sin(-rotation))+translateX, (rep[0]*scaling*(-Math.sin(-rotation)) + rep[1]*scaling*Math.cos(-rotation))+translateY];
 				var numep = [(mep[0]*scaling*Math.cos(-rotation)+mep[1]*scaling*Math.sin(-rotation))+translateX, (mep[0]*scaling*(-Math.sin(-rotation)) + mep[1]*scaling*Math.cos(-rotation))+translateY];
-				
+
 				canvasContext.fillStyle = "rgb(200,10,100)";
 				canvasContext.beginPath();
 				canvasContext.arc(nulep[0], nulep[1], 3, 0, Math.PI*2, true);
 				canvasContext.closePath();
 				canvasContext.fill();
-				
+
 				canvasContext.beginPath();
 				canvasContext.arc(nurep[0], nurep[1], 3, 0, Math.PI*2, true);
 				canvasContext.closePath();
 				canvasContext.fill();
-				
+
 				canvasContext.beginPath();
 				canvasContext.arc(numep[0], numep[1], 3, 0, Math.PI*2, true);
 				canvasContext.closePath();
 				canvasContext.fill();*/
-				
+
 				currentParameters[0] = (scaling*Math.cos(rotation))-1;
 				currentParameters[1] = (scaling*Math.sin(rotation));
 				currentParameters[2] = translateX;
 				currentParameters[3] = translateY;
-				
+
 				//this.draw(document.getElementById('overlay'), currentParameters);
-				
+
 			} else {
 				scaling = candidate.width/modelheight;
 				//var ccc = document.getElementById('overlay').getContext('2d');
@@ -1161,12 +1161,12 @@ var clm = {
 				currentParameters[2] = translateX;
 				currentParameters[3] = translateY;
 			}
-		
+
 			currentPositions = calculatePositions(currentParameters, true);
-			
+
 			return [scaling, rotation, translateX, translateY];
 		}
-		
+
 		// draw a parametrized line on a canvas
 		var drawPath = function(canvasContext, path, dp) {
 			canvasContext.beginPath();
@@ -1183,7 +1183,7 @@ var clm = {
 				b = dp[0]*y + dp[1]*x + dp[3];
 				x += a;
 				y += b;
-				
+
 				if (i == 0) {
 					canvasContext.moveTo(x,y);
 				} else {
@@ -1194,7 +1194,7 @@ var clm = {
 			canvasContext.closePath();
 			canvasContext.stroke();
 		}
-		
+
 		// draw a point on a canvas
 		function drawPoint(canvasContext, point, dp) {
 			var i, x, y, a, b;
@@ -1214,7 +1214,7 @@ var clm = {
 			canvasContext.closePath();
 			canvasContext.fill();
 		}
-		
+
 		// procrustes analysis
 		function procrustes(template, shape) {
 			// assume template and shape is a vector of x,y-coordinates
@@ -1229,7 +1229,7 @@ var clm = {
 			}
 			shape = shapeClone;
 			template = templateClone;
-			
+
 			// calculate translation
 			var templateMean = [0.0, 0.0];
 			for (var i = 0;i < template.length;i++) {
@@ -1238,7 +1238,7 @@ var clm = {
 			}
 			templateMean[0] /= template.length;
 			templateMean[1] /= template.length;
-			
+
 			var shapeMean = [0.0, 0.0];
 			for (var i = 0;i < shape.length;i++) {
 				shapeMean[0] += shape[i][0];
@@ -1246,10 +1246,10 @@ var clm = {
 			}
 			shapeMean[0] /= shape.length;
 			shapeMean[1] /= shape.length;
-			
+
 			var translationX = templateMean[0] - shapeMean[0];
 			var translationY = templateMean[1] - shapeMean[1];
-			
+
 			// centralize
 			for (var i = 0;i < shape.length;i++) {
 				shape[i][0] -= shapeMean[0];
@@ -1259,32 +1259,32 @@ var clm = {
 				template[i][0] -= templateMean[0];
 				template[i][1] -= templateMean[1];
 			}
-			
+
 			// scaling
-			
+
 			var scaleS = 0.0;
 			for (var i = 0;i < shape.length;i++) {
 				scaleS += ((shape[i][0])*(shape[i][0]));
 				scaleS += ((shape[i][1])*(shape[i][1]));
 			}
 			scaleS = Math.sqrt(scaleS/shape.length);
-			
+
 			var scaleT = 0.0;
 			for (var i = 0;i < template.length;i++) {
 				scaleT += ((template[i][0])*(template[i][0]));
 				scaleT += ((template[i][1])*(template[i][1]));
 			}
 			scaleT = Math.sqrt(scaleT/template.length);
-			
+
 			var scaling = scaleT/scaleS;
-			
+
 			for (var i = 0;i < shape.length;i++) {
 				shape[i][0] *= scaling;
 				shape[i][1] *= scaling;
 			}
-				
+
 			// rotation
-			
+
 			var top = 0.0;
 			var bottom = 0.0;
 			for (var i = 0;i < shape.length;i++) {
@@ -1292,14 +1292,14 @@ var clm = {
 				bottom += (shape[i][0]*template[i][0] + shape[i][1]*template[i][1]);
 			}
 			var rotation = Math.atan(top/bottom);
-			
+
 			translationX += (shapeMean[0]-(scaling*Math.cos(-rotation)*shapeMean[0])-(scaling*shapeMean[1]*Math.sin(-rotation)));
 			translationY += (shapeMean[1]+(scaling*Math.sin(-rotation)*shapeMean[0])-(scaling*shapeMean[1]*Math.cos(-rotation)));
-			
+
 			//returns rotation, scaling, transformx and transformx
 			return [translationX, translationY, scaling, rotation];
 		}
-		
+
 		// function to draw pixeldata on some canvas, only used for debugging
 		var drawData = function(canvasContext, data, width, height, transposed, drawX, drawY) {
 			var psci = canvasContext.createImageData(width, height);
@@ -1319,7 +1319,7 @@ var clm = {
 			}
 			canvasContext.putImageData(psci, drawX, drawY);
 		}
-		
+
 		var requestAnimFrame = (function() {
 			return window.requestAnimationFrame ||
 			window.webkitRequestAnimationFrame ||
@@ -1330,7 +1330,7 @@ var clm = {
 				return window.setTimeout(callback, 1000/60);
 			};
 		})();
-		
+
 		var cancelRequestAnimFrame = (function() {
 			return window.cancelAnimationFrame ||
 				window.webkitCancelRequestAnimationFrame ||
@@ -1339,7 +1339,7 @@ var clm = {
 				window.msCancelRequestAnimationFrame ||
 				window.clearTimeout;
 		})();
-		
+
 		return true;
 	}
 }
@@ -1352,16 +1352,16 @@ var webglFilter = function() {
    * 0 : raw filter
    * 1 : patches
    * 2 : finished response
-   * 3 : grad/lbp treated patches 
+   * 3 : grad/lbp treated patches
    * 4 : sobel filter
    * 5 : lbp filter
-   * 
+   *
    * Routing:
    *         (              )  0/4/5 --\
    *         (              )          _\|
    * 1 ----> ( ---------->3 ) ----------> 2
    *         lbpResponse/      patchResponse
-   *         gradientResponse  
+   *         gradientResponse
    */
 
   var gl, canvas;
@@ -1374,7 +1374,7 @@ var webglFilter = function() {
   var drawOutRectangles, drawOutImages, drawOutLayer;
   var patchCells, textureWidth, textureHeight, patchSize, patchArray;
   var biases;
-  
+
   var lbpResponseProgram;
   var lbo, lbpTexCoordLocation, lbpTexCoordBuffer, lbpPositionLocation, lbpAPositionBuffer;
 
@@ -1416,10 +1416,10 @@ var webglFilter = function() {
     "}"
   ].join('\n');
   var gradientResponseFS;
-  
+
   var patchResponseVS;
   var patchResponseFS;
-  
+
   var drawResponsesVS = [
     "attribute vec2 a_texCoord_draw;",
     "attribute vec2 a_position_draw;",
@@ -1449,7 +1449,7 @@ var webglFilter = function() {
     "   v_select = a_patchChoice_draw;",
     "}"
   ].join('\n');
-  
+
   var drawResponsesFS = [
     "precision mediump float;",
     "",
@@ -1487,7 +1487,7 @@ var webglFilter = function() {
     "  gl_FragColor = res;",
     "}"
   ].join('\n');
-  
+
   this.init = function(filters, bias, nP, pW, pH, fW, fH) {
     // we assume filterVector goes from left to right, rowwise, i.e. row-major order
 
@@ -1495,13 +1495,13 @@ var webglFilter = function() {
       alert("filter width and height must be same size!");
       return;
     }
-    
+
     // if filter width is not odd, alert
     if (fW % 2 == 0 || fH % 2 == 0) {
       alert("filters used in svm must be of odd dimensions!");
       return;
     }
-    
+
     // setup variables
     biases = bias;
     filterWidth = fW;
@@ -1565,7 +1565,7 @@ var webglFilter = function() {
       "  gl_FragColor = colorSum;",
       "}"
     ].join('\n');
-    
+
     patchResponseVS = [
       "attribute vec2 a_texCoord;",
       "attribute vec2 a_position;",
@@ -1677,14 +1677,14 @@ var webglFilter = function() {
     document.body.appendChild(canvas);
     // TODO : isolate this library from webgl-util.js
     gl = setupWebGL(canvas, {premultipliedAlpha: false, preserveDrawingBuffer : true, antialias : false});
-    
+
 
     // check for float textures support and fail if not
     if (!gl.getExtension("OES_texture_float")) {
       alert("Your graphics card does not support floating point textures! :(");
       return;
     }
-    
+
     /** insert filters into textures **/
     if ('raw' in filters) {
       insertFilter(filters['raw'], gl.TEXTURE0)
@@ -1700,7 +1700,7 @@ var webglFilter = function() {
     }
 
     /** calculate vertices for calculating responses **/
-    
+
     // vertex rectangles to draw out
     var rectangles = [];
     var halfFilter = (filterWidth-1)/2;
@@ -1709,19 +1709,19 @@ var webglFilter = function() {
       yOffset = i*patchHeight;
       //first triangle
       rectangles = rectangles.concat(
-        [halfFilter, yOffset+halfFilter, 
+        [halfFilter, yOffset+halfFilter,
         patchWidth-halfFilter, yOffset+halfFilter,
         halfFilter, yOffset+patchHeight-halfFilter]
       );
       //second triangle
       rectangles = rectangles.concat(
-        [halfFilter, yOffset+patchHeight-halfFilter, 
+        [halfFilter, yOffset+patchHeight-halfFilter,
         patchWidth-halfFilter, yOffset+halfFilter,
         patchWidth-halfFilter, yOffset+patchHeight-halfFilter]
       );
     }
     rectangles = new Float32Array(rectangles);
-    
+
     // image rectangles to draw out
     var irectangles = [];
     for (var i = 0;i < rectangles.length;i++) {
@@ -1743,19 +1743,19 @@ var webglFilter = function() {
         yOffset = i * (2/numBlocks);
         //first triangle
         gradRectangles = gradRectangles.concat(
-          [-1.0, topCoord - yOffset, 
+          [-1.0, topCoord - yOffset,
           1.0, topCoord - yOffset,
           -1.0, bottomCoord - yOffset]
         );
         //second triangle
         gradRectangles = gradRectangles.concat(
-          [-1.0, bottomCoord - yOffset, 
+          [-1.0, bottomCoord - yOffset,
           1.0, topCoord - yOffset,
           1.0, bottomCoord - yOffset]
         );
       }
       gradRectangles = new Float32Array(gradRectangles);
-      
+
       topCoord = 1.0 - 1/(patchHeight*numBlocks);
       bottomCoord = 1.0 - 1/numBlocks + 1/(patchHeight*numBlocks);
       // calculate position of image rectangles to draw out
@@ -1764,13 +1764,13 @@ var webglFilter = function() {
         yOffset = i * (1/numBlocks);
         //first triangle
         gradIRectangles = gradIRectangles.concat(
-          [0.0, topCoord - yOffset, 
+          [0.0, topCoord - yOffset,
           1.0, topCoord - yOffset,
           0.0, bottomCoord - yOffset]
         );
         //second triangle
         gradIRectangles = gradIRectangles.concat(
-          [0.0, bottomCoord - yOffset, 
+          [0.0, bottomCoord - yOffset,
           1.0, topCoord - yOffset,
           1.0, bottomCoord - yOffset]
         );
@@ -1786,7 +1786,7 @@ var webglFilter = function() {
     for (var i = 0;i < numPatches;i++) {
       yOffset = i*newCanvasBlockHeight;
       indexOffset = i*12;
-      
+
       //first triangle
       drawOutRectangles[indexOffset] = 0.0;
       drawOutRectangles[indexOffset+1] = yOffset;
@@ -1794,7 +1794,7 @@ var webglFilter = function() {
       drawOutRectangles[indexOffset+3] = yOffset;
       drawOutRectangles[indexOffset+4] = 0.0;
       drawOutRectangles[indexOffset+5] = yOffset+newCanvasBlockHeight;
-      
+
       //second triangle
       drawOutRectangles[indexOffset+6] = 0.0;
       drawOutRectangles[indexOffset+7] = yOffset+newCanvasBlockHeight;
@@ -1803,7 +1803,7 @@ var webglFilter = function() {
       drawOutRectangles[indexOffset+10] = newCanvasWidth;
       drawOutRectangles[indexOffset+11] = yOffset+newCanvasBlockHeight;
     }
-    
+
     // images
     drawOutImages = new Float32Array(numPatches*12);
     var halfFilterWidth = ((filterWidth-1)/2)/patchWidth;
@@ -1812,7 +1812,7 @@ var webglFilter = function() {
     for (var i = 0;i < numPatches;i++) {
       yOffset = Math.floor(i / 4)*patchHeightT;
       indexOffset = i*12;
-      
+
       //first triangle
       drawOutImages[indexOffset] = halfFilterWidth;
       drawOutImages[indexOffset+1] = yOffset+halfFilterHeight;
@@ -1820,7 +1820,7 @@ var webglFilter = function() {
       drawOutImages[indexOffset+3] = yOffset+halfFilterHeight;
       drawOutImages[indexOffset+4] = halfFilterWidth;
       drawOutImages[indexOffset+5] = yOffset+patchHeightT-halfFilterHeight;
-      
+
       //second triangle
       drawOutImages[indexOffset+6] = halfFilterWidth;
       drawOutImages[indexOffset+7] = yOffset+patchHeightT-halfFilterHeight;
@@ -1829,7 +1829,7 @@ var webglFilter = function() {
       drawOutImages[indexOffset+10] = 1.0-halfFilterWidth;
       drawOutImages[indexOffset+11] = yOffset+patchHeightT-halfFilterHeight;
     }
-    
+
     // layer
     drawOutLayer = new Float32Array(numPatches*6);
     var layernum;
@@ -1843,7 +1843,7 @@ var webglFilter = function() {
       drawOutLayer[indexOffset+4] = layernum;
       drawOutLayer[indexOffset+5] = layernum;
     }
-    
+
     /** set up programs and load attributes etc **/
 
     if ('sobel' in filters) {
@@ -1859,7 +1859,7 @@ var webglFilter = function() {
       gl.bufferData(gl.ARRAY_BUFFER, gradRectangles, gl.STATIC_DRAW);
       gl.enableVertexAttribArray(gradPositionLocation);
       gl.vertexAttribPointer(gradPositionLocation, 2, gl.FLOAT, false, 0, 0);
-      
+
       // set up texture positions
       gradTexCoordLocation = gl.getAttribLocation(gradientResponseProgram, "a_texCoord");
       gradTexCoordBuffer = gl.createBuffer();
@@ -1867,7 +1867,7 @@ var webglFilter = function() {
       gl.bufferData(gl.ARRAY_BUFFER, gradIRectangles, gl.STATIC_DRAW);
       gl.enableVertexAttribArray(gradTexCoordLocation);
       gl.vertexAttribPointer(gradTexCoordLocation, 2, gl.FLOAT, false, 0, 0);
-      
+
       // set up patches texture in gradientResponseProgram
       gl.uniform1i(gl.getUniformLocation(gradientResponseProgram, "u_patches"), 1);
     }
@@ -1884,7 +1884,7 @@ var webglFilter = function() {
       gl.bufferData(gl.ARRAY_BUFFER, gradRectangles, gl.STATIC_DRAW);
       gl.enableVertexAttribArray(lbpPositionLocation);
       gl.vertexAttribPointer(lbpPositionLocation, 2, gl.FLOAT, false, 0, 0);
-      
+
       // set up texture positions
       gradTexCoordLocation = gl.getAttribLocation(lbpResponseProgram, "a_texCoord");
       lbpTexCoordBuffer = gl.createBuffer();
@@ -1902,21 +1902,21 @@ var webglFilter = function() {
     var drFragmentShader = loadShader(gl, drawResponsesFS, gl.FRAGMENT_SHADER);
     patchDrawProgram = createProgram(gl, [drVertexShader, drFragmentShader]);
     gl.useProgram(patchDrawProgram);
-    
+
     // set the resolution/dimension of the canvas
     var resolutionLocation = gl.getUniformLocation(patchDrawProgram, "u_resolutiondraw");
     gl.uniform2f(resolutionLocation, newCanvasWidth, newCanvasHeight);
-    
+
     // set u_responses
     var responsesLocation = gl.getUniformLocation(patchDrawProgram, "u_responses");
     gl.uniform1i(responsesLocation, 2);
-    
+
     // setup patchresponse program
     var prVertexShader = loadShader(gl, patchResponseVS, gl.VERTEX_SHADER);
     var prFragmentShader = loadShader(gl, patchResponseFS, gl.FRAGMENT_SHADER);
     patchResponseProgram = createProgram(gl, [prVertexShader, prFragmentShader]);
     gl.useProgram(patchResponseProgram);
-    
+
     // set up vertices with rectangles
     var positionLocation = gl.getAttribLocation(patchResponseProgram, "a_position");
     apositionBuffer = gl.createBuffer();
@@ -1924,7 +1924,7 @@ var webglFilter = function() {
     gl.bufferData(gl.ARRAY_BUFFER, rectangles, gl.STATIC_DRAW);
     gl.enableVertexAttribArray(positionLocation);
     gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
-    
+
     // set up texture positions
     texCoordLocation = gl.getAttribLocation(patchResponseProgram, "a_texCoord");
     texCoordBuffer = gl.createBuffer();
@@ -1959,7 +1959,7 @@ var webglFilter = function() {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, patchWidth, patchHeight*numBlocks, 0, gl.RGBA, gl.FLOAT, null);
-    
+
     // set up response framebuffer
     fbo = gl.createFramebuffer();
     gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
@@ -1977,9 +1977,9 @@ var webglFilter = function() {
 
   this.getRawResponses = function(patches) {
     // TODO: check patches correct length/dimension
-    
+
     insertPatches(patches);
-    
+
     // switch to correct program
     gl.useProgram(patchResponseProgram);
 
@@ -1988,32 +1988,32 @@ var webglFilter = function() {
 
     // set u_filters to point to correct filter
     gl.uniform1i(gl.getUniformLocation(patchResponseProgram, "u_filters"), 0);
-      
+
     // set up vertices with rectangles
     var positionLocation = gl.getAttribLocation(patchResponseProgram, "a_position");
     gl.bindBuffer(gl.ARRAY_BUFFER, apositionBuffer);
     gl.enableVertexAttribArray(positionLocation);
     gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
-    
+
     // set up texture positions
     var texCoordLocation = gl.getAttribLocation(patchResponseProgram, "a_texCoord");
     gl.bindBuffer(gl.ARRAY_BUFFER, texCoordBuffer);
     gl.enableVertexAttribArray(texCoordLocation);
     gl.vertexAttribPointer(texCoordLocation, 2, gl.FLOAT, false, 0, 0);
-    
+
     // set framebuffer to the original one if not already using it
     gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
-    
+
     gl.viewport(0, 0, patchWidth, patchHeight*numBlocks);
-    
+
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER)
-    
+
     // draw to framebuffer
     gl.drawArrays(gl.TRIANGLES, 0, patchCells*6);
-    
+
     //gl.finish();
-    
+
     var responses = drawOut('raw');
 
     return responses;
@@ -2035,7 +2035,7 @@ var webglFilter = function() {
     gl.bindBuffer(gl.ARRAY_BUFFER, gradAPositionBuffer);
     gl.enableVertexAttribArray(gradPositionLocation);
     gl.vertexAttribPointer(gradPositionLocation, 2, gl.FLOAT, false, 0, 0);
-    
+
     // set up texture positions
     var gradTexCoordLocation = gl.getAttribLocation(gradientResponseProgram, "a_texCoord");
     gl.bindBuffer(gl.ARRAY_BUFFER, gradTexCoordBuffer);
@@ -2056,7 +2056,7 @@ var webglFilter = function() {
     /* calculate responses */
 
     gl.useProgram(patchResponseProgram);
-    
+
     // set patches and filters to point to correct textures
     gl.uniform1i(gl.getUniformLocation(patchResponseProgram, "u_filters"), 4);
     gl.uniform1i(gl.getUniformLocation(patchResponseProgram, "u_patches"), 3);
@@ -2071,13 +2071,13 @@ var webglFilter = function() {
     gl.bindBuffer(gl.ARRAY_BUFFER, texCoordBuffer);
     gl.enableVertexAttribArray(texCoordLocation);
     gl.vertexAttribPointer(texCoordLocation, 2, gl.FLOAT, false, 0, 0);
-    
+
     gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
     gl.viewport(0, 0, patchWidth, patchHeight*numBlocks);
 
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER)
-    
+
     // draw to framebuffer
     gl.drawArrays(gl.TRIANGLES, 0, patchCells*6);
 
@@ -2104,7 +2104,7 @@ var webglFilter = function() {
     gl.bindBuffer(gl.ARRAY_BUFFER, lbpAPositionBuffer);
     gl.enableVertexAttribArray(lbpPositionLocation);
     gl.vertexAttribPointer(lbpPositionLocation, 2, gl.FLOAT, false, 0, 0);
-    
+
     // set up texture positions
     var lbpTexCoordLocation = gl.getAttribLocation(lbpResponseProgram, "a_texCoord");
     gl.bindBuffer(gl.ARRAY_BUFFER, lbpTexCoordBuffer);
@@ -2139,13 +2139,13 @@ var webglFilter = function() {
     gl.bindBuffer(gl.ARRAY_BUFFER, texCoordBuffer);
     gl.enableVertexAttribArray(texCoordLocation);
     gl.vertexAttribPointer(texCoordLocation, 2, gl.FLOAT, false, 0, 0);
-    
+
     gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
     gl.viewport(0, 0, patchWidth, patchHeight*numBlocks);
 
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER)
-    
+
     // draw to framebuffer
     gl.drawArrays(gl.TRIANGLES, 0, patchCells*6);
 
@@ -2167,7 +2167,7 @@ var webglFilter = function() {
           patchesIndex1 = i*4;
           patchesIndex2 = (j*patchWidth) + k;
           patchArrayIndex = ((patchSize*i) + patchesIndex2)*4;
-          
+
           //set r with first patch
           if (patchesIndex1 < numPatches) {
             patchArray[patchArrayIndex] = patches[patchesIndex1][patchesIndex2];
@@ -2195,7 +2195,7 @@ var webglFilter = function() {
         }
       }
     }
-    
+
     // pass texture into an uniform
     gl.activeTexture(gl.TEXTURE1);
     gl.bindTexture(gl.TEXTURE_2D, patchTex);
@@ -2253,64 +2253,64 @@ var webglFilter = function() {
   var drawOut = function(type) {
     // switch programs
     gl.useProgram(patchDrawProgram);
-    
+
     // bind canvas buffer
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     gl.viewport(0, 0, newCanvasWidth, newCanvasHeight);
-    
+
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER)
 
     gl.bindBuffer(gl.ARRAY_BUFFER, drawRectBuffer);
     gl.bufferData(
-      gl.ARRAY_BUFFER, 
-      drawOutRectangles, 
+      gl.ARRAY_BUFFER,
+      drawOutRectangles,
       gl.STATIC_DRAW);
     var positionLocation = gl.getAttribLocation(patchDrawProgram, "a_position_draw");
     gl.enableVertexAttribArray(positionLocation);
     gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
-    
+
     gl.bindBuffer(gl.ARRAY_BUFFER, drawImageBuffer);
     gl.bufferData(
-      gl.ARRAY_BUFFER, 
-      drawOutImages, 
+      gl.ARRAY_BUFFER,
+      drawOutImages,
       gl.STATIC_DRAW);
     var textureLocation = gl.getAttribLocation(patchDrawProgram, "a_texCoord_draw");
     gl.enableVertexAttribArray(textureLocation);
     gl.vertexAttribPointer(textureLocation, 2, gl.FLOAT, false, 0, 0);
-    
+
     gl.bindBuffer(gl.ARRAY_BUFFER, drawLayerBuffer);
     gl.bufferData(
-      gl.ARRAY_BUFFER, 
-      drawOutLayer, 
+      gl.ARRAY_BUFFER,
+      drawOutLayer,
       gl.STATIC_DRAW);
     var layerLocation = gl.getAttribLocation(patchDrawProgram, "a_patchChoice_draw");
     gl.enableVertexAttribArray(layerLocation);
     gl.vertexAttribPointer(layerLocation, 1, gl.FLOAT, false, 0, 0);
-    
+
     // draw out
     gl.drawArrays(gl.TRIANGLES, 0, numPatches*6);
 
     var responses = getOutput();
-    
+
     responses = unpackToFloat(responses);
-    
+
     // split
     responses = splitArray(responses, numPatches);
-    
+
     // add bias
     responses = addBias(responses, biases[type]);
-    
+
     // normalize responses to lie within [0,1]
     var rl = responses.length;
-    
+
     for (var i = 0;i < rl;i++) {
       responses[i] = normalizeFilterMatrix(responses[i]);
     }
 
     return responses;
   }
-  
+
   var addBias = function(responses, bias) {
     // do a little trick to add bias in the logit function
     var biasMult;
@@ -2322,7 +2322,7 @@ var webglFilter = function() {
     }
     return responses;
   }
-  
+
   var splitArray = function(array, parts) {
     var sp = [];
     var al = array.length;
@@ -2335,12 +2335,12 @@ var webglFilter = function() {
         }
         ta = [];
       }
-      ta.push(array[i]); 
+      ta.push(array[i]);
     }
     sp.push(ta);
     return sp;
   }
-  
+
   var getOutput = function() {
     // get data
     var pixelValues = new Uint8Array(4*canvas.width*canvas.height);
@@ -2348,7 +2348,7 @@ var webglFilter = function() {
     // return
     return pixelValues;
   }
-  
+
   var unpackToFloat = function(array) {
     // convert packed floats to proper floats : see http://stackoverflow.com/questions/9882716/packing-float-into-vec4-how-does-this-code-work
     var newArray = [];
@@ -2358,19 +2358,19 @@ var webglFilter = function() {
     }
     return newArray;
   }
-  
+
   var normalizeFilterMatrix = function(response) {
     // normalize responses to lie within [0,1]
     var msize = response.length;
     var max = 0;
     var min = 1;
-    
+
     for (var i = 0;i < msize;i++) {
       max = response[i] > max ? response[i] : max;
       min = response[i] < min ? response[i] : min;
     }
     var dist = max-min;
-    
+
     if (dist == 0) {
       console.log("a patchresponse was monotone, causing normalization to fail. Leaving it unchanged.")
       response = response.map(function() {return 1});
@@ -2379,7 +2379,7 @@ var webglFilter = function() {
         response[i] = (response[i]-min)/dist;
       }
     }
-    
+
     return response
   }
 };
@@ -2418,7 +2418,7 @@ var webglFilter = function() {
  */
 
 (function() {
-  
+
   /**
    * Wrapped logging function.
    * @param {string} msg The message to log.
@@ -2697,34 +2697,34 @@ var webglFilter = function() {
 "use strict";
 
 var svmFilter = function() {
-  
+
   var _fft, fft_filters, responses, biases;
   var fft_size, filterLength, filter_width, search_width, num_patches;
   var temp_imag_part, temp_real_part;
-  
+
   // fft function
   this.fft_inplace = function(array, _im_part) {
       // in-place
-      
+
       if (typeof _im_part == "undefined") {
         _im_part = temp_imag_part;
       }
-      
+
       for (var i = 0;i < filterLength;i++) {
         _im_part[i] = 0.0;
       }
-      
+
       _fft.real_fft2d(array,_im_part);
-      
+
       return [array, _im_part];
   }
-  
+
   this.ifft = function(rn, cn) {
       // in-place
       _fft.real_ifft2d(rn, cn);
       return rn;
   }
-  
+
   var complex_mult_inplace = function(cn1, cn2) {
       // in-place, cn1 is the one modified
       var temp1, temp2;
@@ -2735,11 +2735,11 @@ var svmFilter = function() {
           cn1[1][r] = temp2;
       }
   }
-  
+
   this.init = function(filter_input, bias_input, numPatches, filterWidth, searchWidth) {
-    
+
     var temp, fft, offset;
-    
+
     // calculate needed size of fft (has to be power of two)
     fft_size = upperPowerOfTwo(filterWidth-1+searchWidth);
     filterLength = fft_size*fft_size;
@@ -2748,25 +2748,25 @@ var svmFilter = function() {
     fft_filters = Array(numPatches);
     var fft_filter;
     var edge = (filterWidth-1)/2;
-    
+
     for (var i = 0;i < numPatches;i++) {
       var flar_fi0 = new Float64Array(filterLength);
       var flar_fi1 = new Float64Array(filterLength);
-      
-      // load filter 
+
+      // load filter
       var xOffset, yOffset;
       for (var j = 0;j < filterWidth;j++) {
         for (var k = 0;k < filterWidth;k++) {
           // TODO : rotate filter
-          
+
           xOffset = k < edge ? (fft_size-edge) : (-edge);
           yOffset = j < edge ? (fft_size-edge) : (-edge);
           flar_fi0[k+xOffset+((j+yOffset)*fft_size)] = filter_input[i][(filterWidth-1-j)+((filterWidth-1-k)*filterWidth)];
-          
+
           /*xOffset = k < edge ? (fft_size-edge) : (-edge);
           yOffset = j < edge ? (fft_size-edge) : (-edge);
           flar_fi0[k+xOffset+((j+yOffset)*fft_size)] = filter_input[i][k+(j*filterWidth)];*/
-          
+
           //console.log(k + ","+ j+":" + (k+xOffset+((j+yOffset)*fft_size)))
         }
       }
@@ -2776,13 +2776,13 @@ var svmFilter = function() {
       fft_filters[i] = fft_filter;
 
     }
-    
+
     // set up biases
     biases = new Float64Array(numPatches);
     for (var i = 0;i < numPatches;i++) {
       biases[i] = bias_input[i];
     }
-    
+
     responses = Array(numPatches);
     temp_imag_part = Array(numPatches);
     for (var i = 0;i < numPatches;i++) {
@@ -2790,12 +2790,12 @@ var svmFilter = function() {
       temp_imag_part[i] = new Float64Array(searchWidth*searchWidth);
     }
     temp_real_part = new Float64Array(filterLength);
-    
+
     num_patches = numPatches;
     filter_width = filterWidth;
     search_width = searchWidth;
   }
-  
+
   this.getResponses = function(patches) {
     var response, temp, edge;
     var patch_width = filter_width-1+search_width;
@@ -2804,28 +2804,28 @@ var svmFilter = function() {
       for (var j = 0;j < fft_size*fft_size;j++) {
         temp_real_part[j] = 0.0;
       }
-      
+
       // normalize patches to 0-1
       patches[i] = normalizePatches(patches[i]);
-      
+
       // patch must be padded (with zeroes) to match fft size
       for (var j = 0;j < patch_width;j++) {
         for (var k = 0;k < patch_width;k++) {
           temp_real_part[j + (fft_size*k)] = patches[i][k + (patch_width*j)];
         }
       }
-      
+
       //drawData(document.getElementById('sketch').getContext('2d'), temp_real_part, 32, 32, false, 0, 0);
-      
+
       // fft it
       response = this.fft_inplace(temp_real_part);
-      
+
       // multiply pointwise with filter
       complex_mult_inplace(response, fft_filters[i]);
-      
+
       // inverse fft it
       response = this.ifft(response[0], response[1]);
-      
+
       // crop out edges
       edge = (filter_width-1)/2;
       for (var j = 0;j < search_width;j++) {
@@ -2838,24 +2838,24 @@ var svmFilter = function() {
       for (var j = 0;j < search_width*search_width;j++) {
         responses[i][j] += biases[i];
       }
-      
+
       // logistic transformation
       responses[i] = logisticResponse(responses[i]);
-      
+
       /*responses[i] = new Float64Array(32*32)
       for (var j = 0;j < 32;j++) {
         for (var k = 0;k < 32;k++) {
           responses[i][k + (j*(32))] = response[k + (j*(32))]
         }
       }*/
-      
+
       // normalization?
       inplaceNormalizeFilterMatrix(responses[i]);
     }
-    
+
     return responses;
   }
-  
+
   var normalizePatches = function(patch) {
     var patch_width = filter_width-1+search_width;
     var max = 0;
@@ -2880,7 +2880,7 @@ var svmFilter = function() {
     }
     return patch;
   }
-  
+
   var logisticResponse = function(response) {
     // create probability by doing logistic transformation
     for (var j = 0;j < search_width;j++) {
@@ -2890,7 +2890,7 @@ var svmFilter = function() {
     }
     return response
   }
-  
+
   var upperPowerOfTwo = function(x) {
     x--;
     x |= x >> 1;
@@ -2901,19 +2901,19 @@ var svmFilter = function() {
     x++;
     return x;
   }
-  
+
   var inplaceNormalizeFilterMatrix = function(response) {
     // normalize responses to lie within [0,1]
     var msize = response.length;
     var max = 0;
     var min = 1;
-    
+
     for (var i = 0;i < msize;i++) {
       max = response[i] > max ? response[i] : max;
       min = response[i] < min ? response[i] : min;
     }
     var dist = max-min;
-    
+
     if (dist == 0) {
       console.log("a patchresponse was monotone, causing normalization to fail. Leaving it unchanged.")
     } else {
@@ -2926,18 +2926,18 @@ var svmFilter = function() {
   /**
    * Fast Fourier Transform
    * 1D-FFT/IFFT, 2D-FFT/IFFT (radix-2)
-   * 
+   *
    * @author ryo / github.com/wellflat
    * Based on https://github.com/wellflat/javascript-labs with some tiny optimizations
    */
 
   function FFT() {
-    
+
     var _n = 0,          // order
         _bitrev = null,  // bit reversal table
         _cstb = null;    // sin/cos table
     var _tre, _tim;
-    
+
     this.init = function (n) {
       if(n !== 0 && (n & (n - 1)) === 0) {
         _n = n;
@@ -2948,12 +2948,12 @@ var svmFilter = function() {
         throw new Error("init: radix-2 required");
       }
     }
-      
+
     // 1D-FFT
     this.fft1d = function (re, im) {
       fft(re, im, 1);
     }
-      
+
     // 1D-IFFT
     this.ifft1d = function (re, im) {
       var n = 1/_n;
@@ -2963,7 +2963,7 @@ var svmFilter = function() {
         im[i] *= n;
       }
     }
-    
+
     // 2D-FFT
     this.fft2d = function (re, im) {
       var i = 0;
@@ -2980,7 +2980,7 @@ var svmFilter = function() {
           im[x2 + i] = _tim[x2];
         }
       }
-      
+
       // y-axis
       for(var x=0; x<_n; x++) {
         for(var y1=0; y1<_n; y1++) {
@@ -2996,7 +2996,7 @@ var svmFilter = function() {
         }
       }
     }
-    
+
     // 2D-IFFT
     this.ifft2d = function (re, im) {
       var i = 0;
@@ -3028,7 +3028,7 @@ var svmFilter = function() {
         }
       }
     }
-    
+
     // 2D-IFFT, real-valued
     // only outputs the real valued part
     this.real_ifft2d = function (re, im) {
@@ -3074,7 +3074,7 @@ var svmFilter = function() {
         }
       }
     }
-    
+
     // 2D-FFT, real-valued only
     // ignores the imaginary input
     //   see:
@@ -3130,7 +3130,7 @@ var svmFilter = function() {
         }
       }
     }
-    
+
     // core operation of FFT
     function fft(re, im, inv) {
       var d, h, ik, m, tmp, wr, wi, xr, xi,
@@ -3168,7 +3168,7 @@ var svmFilter = function() {
         }
       }
     }
-    
+
     function butfly(re, im, inv, n4) {
       var h,d,wr,wi,ik,xr,xi;
       for(var k=1; k<_n; k<<=1) {
@@ -3190,7 +3190,7 @@ var svmFilter = function() {
         }
       }
     }
-    
+
     // set variables
     function _setVariables() {
       if(typeof Uint8Array !== 'undefined') {
@@ -3208,7 +3208,7 @@ var svmFilter = function() {
         _tim = new Array(_n);
       }
     }
-    
+
     // make bit reversal table
     function _makeBitReversal() {
       var i = 0,
@@ -3225,7 +3225,7 @@ var svmFilter = function() {
         _bitrev[i] = j;
       }
     }
-    
+
     // make trigonometric function table
     function _makeCosSinTable() {
       var n2 = _n >> 1,
@@ -3262,14 +3262,14 @@ var svmFilter = function() {
 // requires mosse.js
 
 var mosseFilterResponses = function() {
-  
+
   var filters = [];
   var responses = [];
   var num_Patches = 0;
-  
+
   this.init = function(filter_input, numPatches, filterWidth, filterHeight) {
     // load filters, make fft ready
-    
+
     for (var i = 0;i < numPatches;i++) {
       var temp = {};
       temp.width = filterWidth;
@@ -3286,20 +3286,20 @@ var mosseFilterResponses = function() {
       filters[i] = new mosseFilter();
       filters[i].load(temp);
     }
-    
+
     num_Patches = numPatches;
   }
-  
+
   this.getResponses = function(patches) {
     for (var i = 0;i < num_Patches;i++) {
       responses[i] = filters[i].getResponse(patches[i]);
       //responses[i] = logisticResponse(responses[i]);
       responses[i] = normalizeFilterMatrix(responses[i]);
     }
-    
+
     return responses;
   }
-  
+
   var logisticResponse = function(response) {
     // create probability by doing logistic transformation
     var filter_size = response.length;
@@ -3308,19 +3308,19 @@ var mosseFilterResponses = function() {
     }
     return response;
   }
-  
+
   var normalizeFilterMatrix = function(response) {
     // normalize responses to lie within [0,1]
     var msize = response.length;
     var max = 0;
     var min = 1;
-    
+
     for (var i = 0;i < msize;i++) {
       max = response[i] > max ? response[i] : max;
       min = response[i] < min ? response[i] : min;
     }
     var dist = max-min;
-    
+
     if (dist == 0) {
       console.log("a patchresponse was monotone, causing normalization to fail. Leaving it unchanged.")
       response = response.map(function() {return 1});
@@ -3329,7 +3329,7 @@ var mosseFilterResponses = function() {
         response[i] = (response[i]-min)/dist;
       }
     }
-    
+
     return response
   }
 }
@@ -3430,16 +3430,16 @@ numeric.prettyPrint = function prettyPrint(x) {
             return false;
         }
         if(x === null) { ret.push("null"); return false; }
-        if(typeof x === "function") { 
+        if(typeof x === "function") {
             ret.push(x.toString());
             var flag = false;
-            for(k in x) { if(x.hasOwnProperty(k)) { 
+            for(k in x) { if(x.hasOwnProperty(k)) {
                 if(flag) ret.push(',\n');
                 else ret.push('\n{');
-                flag = true; 
-                ret.push(k); 
-                ret.push(': \n'); 
-                foo(x[k]); 
+                flag = true;
+                ret.push(k);
+                ret.push(': \n');
+                foo(x[k]);
             } }
             if(flag) ret.push('}\n');
             return true;
@@ -3551,45 +3551,45 @@ numeric.imageURL = function imageURL(img) {
         if(typeof from === "undefined") { from = 0; }
         if(typeof to === "undefined") { to = a.length; }
         var table = [0x00000000, 0x77073096, 0xEE0E612C, 0x990951BA, 0x076DC419, 0x706AF48F, 0xE963A535, 0x9E6495A3,
-                     0x0EDB8832, 0x79DCB8A4, 0xE0D5E91E, 0x97D2D988, 0x09B64C2B, 0x7EB17CBD, 0xE7B82D07, 0x90BF1D91, 
+                     0x0EDB8832, 0x79DCB8A4, 0xE0D5E91E, 0x97D2D988, 0x09B64C2B, 0x7EB17CBD, 0xE7B82D07, 0x90BF1D91,
                      0x1DB71064, 0x6AB020F2, 0xF3B97148, 0x84BE41DE, 0x1ADAD47D, 0x6DDDE4EB, 0xF4D4B551, 0x83D385C7,
-                     0x136C9856, 0x646BA8C0, 0xFD62F97A, 0x8A65C9EC, 0x14015C4F, 0x63066CD9, 0xFA0F3D63, 0x8D080DF5, 
-                     0x3B6E20C8, 0x4C69105E, 0xD56041E4, 0xA2677172, 0x3C03E4D1, 0x4B04D447, 0xD20D85FD, 0xA50AB56B, 
-                     0x35B5A8FA, 0x42B2986C, 0xDBBBC9D6, 0xACBCF940, 0x32D86CE3, 0x45DF5C75, 0xDCD60DCF, 0xABD13D59, 
+                     0x136C9856, 0x646BA8C0, 0xFD62F97A, 0x8A65C9EC, 0x14015C4F, 0x63066CD9, 0xFA0F3D63, 0x8D080DF5,
+                     0x3B6E20C8, 0x4C69105E, 0xD56041E4, 0xA2677172, 0x3C03E4D1, 0x4B04D447, 0xD20D85FD, 0xA50AB56B,
+                     0x35B5A8FA, 0x42B2986C, 0xDBBBC9D6, 0xACBCF940, 0x32D86CE3, 0x45DF5C75, 0xDCD60DCF, 0xABD13D59,
                      0x26D930AC, 0x51DE003A, 0xC8D75180, 0xBFD06116, 0x21B4F4B5, 0x56B3C423, 0xCFBA9599, 0xB8BDA50F,
                      0x2802B89E, 0x5F058808, 0xC60CD9B2, 0xB10BE924, 0x2F6F7C87, 0x58684C11, 0xC1611DAB, 0xB6662D3D,
                      0x76DC4190, 0x01DB7106, 0x98D220BC, 0xEFD5102A, 0x71B18589, 0x06B6B51F, 0x9FBFE4A5, 0xE8B8D433,
-                     0x7807C9A2, 0x0F00F934, 0x9609A88E, 0xE10E9818, 0x7F6A0DBB, 0x086D3D2D, 0x91646C97, 0xE6635C01, 
-                     0x6B6B51F4, 0x1C6C6162, 0x856530D8, 0xF262004E, 0x6C0695ED, 0x1B01A57B, 0x8208F4C1, 0xF50FC457, 
-                     0x65B0D9C6, 0x12B7E950, 0x8BBEB8EA, 0xFCB9887C, 0x62DD1DDF, 0x15DA2D49, 0x8CD37CF3, 0xFBD44C65, 
-                     0x4DB26158, 0x3AB551CE, 0xA3BC0074, 0xD4BB30E2, 0x4ADFA541, 0x3DD895D7, 0xA4D1C46D, 0xD3D6F4FB, 
-                     0x4369E96A, 0x346ED9FC, 0xAD678846, 0xDA60B8D0, 0x44042D73, 0x33031DE5, 0xAA0A4C5F, 0xDD0D7CC9, 
-                     0x5005713C, 0x270241AA, 0xBE0B1010, 0xC90C2086, 0x5768B525, 0x206F85B3, 0xB966D409, 0xCE61E49F, 
-                     0x5EDEF90E, 0x29D9C998, 0xB0D09822, 0xC7D7A8B4, 0x59B33D17, 0x2EB40D81, 0xB7BD5C3B, 0xC0BA6CAD, 
-                     0xEDB88320, 0x9ABFB3B6, 0x03B6E20C, 0x74B1D29A, 0xEAD54739, 0x9DD277AF, 0x04DB2615, 0x73DC1683, 
-                     0xE3630B12, 0x94643B84, 0x0D6D6A3E, 0x7A6A5AA8, 0xE40ECF0B, 0x9309FF9D, 0x0A00AE27, 0x7D079EB1, 
-                     0xF00F9344, 0x8708A3D2, 0x1E01F268, 0x6906C2FE, 0xF762575D, 0x806567CB, 0x196C3671, 0x6E6B06E7, 
-                     0xFED41B76, 0x89D32BE0, 0x10DA7A5A, 0x67DD4ACC, 0xF9B9DF6F, 0x8EBEEFF9, 0x17B7BE43, 0x60B08ED5, 
-                     0xD6D6A3E8, 0xA1D1937E, 0x38D8C2C4, 0x4FDFF252, 0xD1BB67F1, 0xA6BC5767, 0x3FB506DD, 0x48B2364B, 
-                     0xD80D2BDA, 0xAF0A1B4C, 0x36034AF6, 0x41047A60, 0xDF60EFC3, 0xA867DF55, 0x316E8EEF, 0x4669BE79, 
-                     0xCB61B38C, 0xBC66831A, 0x256FD2A0, 0x5268E236, 0xCC0C7795, 0xBB0B4703, 0x220216B9, 0x5505262F, 
-                     0xC5BA3BBE, 0xB2BD0B28, 0x2BB45A92, 0x5CB36A04, 0xC2D7FFA7, 0xB5D0CF31, 0x2CD99E8B, 0x5BDEAE1D, 
-                     0x9B64C2B0, 0xEC63F226, 0x756AA39C, 0x026D930A, 0x9C0906A9, 0xEB0E363F, 0x72076785, 0x05005713, 
-                     0x95BF4A82, 0xE2B87A14, 0x7BB12BAE, 0x0CB61B38, 0x92D28E9B, 0xE5D5BE0D, 0x7CDCEFB7, 0x0BDBDF21, 
-                     0x86D3D2D4, 0xF1D4E242, 0x68DDB3F8, 0x1FDA836E, 0x81BE16CD, 0xF6B9265B, 0x6FB077E1, 0x18B74777, 
-                     0x88085AE6, 0xFF0F6A70, 0x66063BCA, 0x11010B5C, 0x8F659EFF, 0xF862AE69, 0x616BFFD3, 0x166CCF45, 
-                     0xA00AE278, 0xD70DD2EE, 0x4E048354, 0x3903B3C2, 0xA7672661, 0xD06016F7, 0x4969474D, 0x3E6E77DB, 
-                     0xAED16A4A, 0xD9D65ADC, 0x40DF0B66, 0x37D83BF0, 0xA9BCAE53, 0xDEBB9EC5, 0x47B2CF7F, 0x30B5FFE9, 
-                     0xBDBDF21C, 0xCABAC28A, 0x53B39330, 0x24B4A3A6, 0xBAD03605, 0xCDD70693, 0x54DE5729, 0x23D967BF, 
+                     0x7807C9A2, 0x0F00F934, 0x9609A88E, 0xE10E9818, 0x7F6A0DBB, 0x086D3D2D, 0x91646C97, 0xE6635C01,
+                     0x6B6B51F4, 0x1C6C6162, 0x856530D8, 0xF262004E, 0x6C0695ED, 0x1B01A57B, 0x8208F4C1, 0xF50FC457,
+                     0x65B0D9C6, 0x12B7E950, 0x8BBEB8EA, 0xFCB9887C, 0x62DD1DDF, 0x15DA2D49, 0x8CD37CF3, 0xFBD44C65,
+                     0x4DB26158, 0x3AB551CE, 0xA3BC0074, 0xD4BB30E2, 0x4ADFA541, 0x3DD895D7, 0xA4D1C46D, 0xD3D6F4FB,
+                     0x4369E96A, 0x346ED9FC, 0xAD678846, 0xDA60B8D0, 0x44042D73, 0x33031DE5, 0xAA0A4C5F, 0xDD0D7CC9,
+                     0x5005713C, 0x270241AA, 0xBE0B1010, 0xC90C2086, 0x5768B525, 0x206F85B3, 0xB966D409, 0xCE61E49F,
+                     0x5EDEF90E, 0x29D9C998, 0xB0D09822, 0xC7D7A8B4, 0x59B33D17, 0x2EB40D81, 0xB7BD5C3B, 0xC0BA6CAD,
+                     0xEDB88320, 0x9ABFB3B6, 0x03B6E20C, 0x74B1D29A, 0xEAD54739, 0x9DD277AF, 0x04DB2615, 0x73DC1683,
+                     0xE3630B12, 0x94643B84, 0x0D6D6A3E, 0x7A6A5AA8, 0xE40ECF0B, 0x9309FF9D, 0x0A00AE27, 0x7D079EB1,
+                     0xF00F9344, 0x8708A3D2, 0x1E01F268, 0x6906C2FE, 0xF762575D, 0x806567CB, 0x196C3671, 0x6E6B06E7,
+                     0xFED41B76, 0x89D32BE0, 0x10DA7A5A, 0x67DD4ACC, 0xF9B9DF6F, 0x8EBEEFF9, 0x17B7BE43, 0x60B08ED5,
+                     0xD6D6A3E8, 0xA1D1937E, 0x38D8C2C4, 0x4FDFF252, 0xD1BB67F1, 0xA6BC5767, 0x3FB506DD, 0x48B2364B,
+                     0xD80D2BDA, 0xAF0A1B4C, 0x36034AF6, 0x41047A60, 0xDF60EFC3, 0xA867DF55, 0x316E8EEF, 0x4669BE79,
+                     0xCB61B38C, 0xBC66831A, 0x256FD2A0, 0x5268E236, 0xCC0C7795, 0xBB0B4703, 0x220216B9, 0x5505262F,
+                     0xC5BA3BBE, 0xB2BD0B28, 0x2BB45A92, 0x5CB36A04, 0xC2D7FFA7, 0xB5D0CF31, 0x2CD99E8B, 0x5BDEAE1D,
+                     0x9B64C2B0, 0xEC63F226, 0x756AA39C, 0x026D930A, 0x9C0906A9, 0xEB0E363F, 0x72076785, 0x05005713,
+                     0x95BF4A82, 0xE2B87A14, 0x7BB12BAE, 0x0CB61B38, 0x92D28E9B, 0xE5D5BE0D, 0x7CDCEFB7, 0x0BDBDF21,
+                     0x86D3D2D4, 0xF1D4E242, 0x68DDB3F8, 0x1FDA836E, 0x81BE16CD, 0xF6B9265B, 0x6FB077E1, 0x18B74777,
+                     0x88085AE6, 0xFF0F6A70, 0x66063BCA, 0x11010B5C, 0x8F659EFF, 0xF862AE69, 0x616BFFD3, 0x166CCF45,
+                     0xA00AE278, 0xD70DD2EE, 0x4E048354, 0x3903B3C2, 0xA7672661, 0xD06016F7, 0x4969474D, 0x3E6E77DB,
+                     0xAED16A4A, 0xD9D65ADC, 0x40DF0B66, 0x37D83BF0, 0xA9BCAE53, 0xDEBB9EC5, 0x47B2CF7F, 0x30B5FFE9,
+                     0xBDBDF21C, 0xCABAC28A, 0x53B39330, 0x24B4A3A6, 0xBAD03605, 0xCDD70693, 0x54DE5729, 0x23D967BF,
                      0xB3667A2E, 0xC4614AB8, 0x5D681B02, 0x2A6F2B94, 0xB40BBE37, 0xC30C8EA1, 0x5A05DF1B, 0x2D02EF8D];
-     
+
         var crc = -1, y = 0, n = a.length,i;
 
         for (i = from; i < to; i++) {
             y = (crc ^ a[i]) & 0xFF;
             crc = (crc >>> 8) ^ table[y];
         }
-     
+
         return crc ^ (-1);
     }
 
@@ -3597,7 +3597,7 @@ numeric.imageURL = function imageURL(img) {
     var stream = [
                   137, 80, 78, 71, 13, 10, 26, 10,                           //  0: PNG signature
                   0,0,0,13,                                                  //  8: IHDR Chunk length
-                  73, 72, 68, 82,                                            // 12: "IHDR" 
+                  73, 72, 68, 82,                                            // 12: "IHDR"
                   (w >> 24) & 255, (w >> 16) & 255, (w >> 8) & 255, w&255,   // 16: Width
                   (h >> 24) & 255, (h >> 16) & 255, (h >> 8) & 255, h&255,   // 20: Height
                   8,                                                         // 24: bit depth
@@ -4052,7 +4052,7 @@ numeric.mapreducers = {
                 if(numeric.opseq.hasOwnProperty(i+'eq')) {
                     codeeq = function(x,y) { return x+' '+o+'= '+y; };
                 } else {
-                    codeeq = function(x,y) { return x+' = '+x+' '+o+' '+y; };                    
+                    codeeq = function(x,y) { return x+' = '+x+' '+o+' '+y; };
                 }
             }
             numeric[i+'VV'] = numeric.pointwise2(['x[i]','y[i]'],code('ret[i]','x[i]','y[i]'),setup);
@@ -4169,7 +4169,7 @@ numeric.inv = function inv(x) {
         Aj = A[i0]; A[i0] = A[j]; A[j] = Aj;
         Ij = I[i0]; I[i0] = I[j]; I[j] = Ij;
         x = Aj[j];
-        for(k=j;k!==n;++k)    Aj[k] /= x; 
+        for(k=j;k!==n;++k)    Aj[k] /= x;
         for(k=n-1;k!==-1;--k) Ij[k] /= x;
         for(i=m-1;i!==-1;--i) {
             if(i!==j) {
@@ -5033,7 +5033,7 @@ numeric.ccsDFS.prototype.dfs = function dfs(J,Ai,Aj,x,xj,Pinv) {
 numeric.ccsLPSolve = function ccsLPSolve(A,B,x,xj,I,Pinv,dfs) {
     var Ai = A[0], Aj = A[1], Av = A[2],m = Ai.length-1, n=0;
     var Bi = B[0], Bj = B[1], Bv = B[2];
-    
+
     var i,i0,i1,j,J,j0,j1,k,l,l0,l1,a;
     i0 = Bi[I];
     i1 = Bi[I+1];
@@ -5140,7 +5140,7 @@ numeric.ccsDFS0.prototype.dfs = function dfs(J,Ai,Aj,x,xj,Pinv,P) {
 numeric.ccsLPSolve0 = function ccsLPSolve0(A,B,y,xj,I,Pinv,P,dfs) {
     var Ai = A[0], Aj = A[1], Av = A[2],m = Ai.length-1, n=0;
     var Bi = B[0], Bj = B[1], Bv = B[2];
-    
+
     var i,i0,i1,j,J,j0,j1,k,l,l0,l1,a;
     i0 = Bi[I];
     i1 = Bi[I+1];
@@ -5303,7 +5303,7 @@ numeric.ccsLUPSolve = function ccsLUPSolve(LUP,B) {
         k = 0;
         j0 = Bi[i];
         j1 = Bi[i+1];
-        for(j=j0;j<j1;++j) { 
+        for(j=j0;j<j1;++j) {
             J = LUP.Pinv[Bj[j]];
             bj[k] = J;
             b[J] = Bv[j];
@@ -5711,7 +5711,7 @@ numeric.cgrid = function grid(n,shape) {
         }
     }
     count=0;
-    for(i=1;i<n[0]-1;i++) for(j=1;j<n[1]-1;j++) 
+    for(i=1;i<n[0]-1;i++) for(j=1;j<n[1]-1;j++)
         if(shape(i,j)) {
             ret[i][j] = count;
             count++;
@@ -5858,7 +5858,7 @@ numeric.Spline.prototype.roots = function roots() {
                 t1 = stops[k+1];
                 z1 = this._at(t1,j);
                 if(z0 === 0) {
-                    ri.push(t0); 
+                    ri.push(t0);
                     t0 = t1;
                     z0 = z1;
                     continue;
@@ -5901,7 +5901,7 @@ numeric.spline = function spline(x,y,k1,kn) {
     var i;
     var sub = numeric.sub,mul = numeric.mul,add = numeric.add;
     for(i=n-2;i>=0;i--) { dx[i] = x[i+1]-x[i]; dy[i] = sub(y[i+1],y[i]); }
-    if(typeof k1 === "string" || typeof kn === "string") { 
+    if(typeof k1 === "string" || typeof kn === "string") {
         k1 = kn = "periodic";
     }
     // Build sparse tridiagonal system
@@ -6599,7 +6599,7 @@ numeric.MPStoLP = function MPStoLP(MPS) {
         }
         switch(state) {
         case 0: case 1: err('Unexpected line');
-        case 2: 
+        case 2:
             switch(w[0]) {
             case 'N': if(N===0) N = w[1]; else err('Two or more N rows'); break;
             case 'L': rows[w[1]] = rl; sign[rl] = 1; b[rl] = 0; ++rl; break;
@@ -6696,18 +6696,18 @@ numeric.MPStoLP = function MPStoLP(MPS) {
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
-// 
+//
 //   1. Redistributions of source code must retain the above copyright
 //      notice, this list of conditions and the following disclaimer.
 //
 //   2. Redistributions in binary form must reproduce the above copyright
 //      notice, this list of conditions and the following disclaimer in the
 //      documentation and/or other materials provided with the distribution.
-// 
+//
 //   3. Neither the name of this module nor the names of its contributors may
 //      be used to endorse or promote products derived from this software
 //      without specific prior written permission.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 // "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
 // LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -6723,7 +6723,7 @@ numeric.MPStoLP = function MPStoLP(MPS) {
 /**
  * All code is in an anonymous closure to keep the global namespace clean.
  *
- * @param {number=} overflow 
+ * @param {number=} overflow
  * @param {number=} startdenom
  */
 
@@ -6839,7 +6839,7 @@ function ARC4(key) {
 // flatten()
 // Converts an object tree to nested arrays of strings.
 //
-/** @param {Object=} result 
+/** @param {Object=} result
   * @param {string=} prop
   * @param {string=} typ */
 function flatten(obj, depth, result, prop, typ) {
@@ -6860,7 +6860,7 @@ function flatten(obj, depth, result, prop, typ) {
 // Mixes a string seed into a key that is an array of integers, and
 // returns a shortened string seed that is equivalent to the result key.
 //
-/** @param {number=} smear 
+/** @param {number=} smear
   * @param {number=} j */
 function mixkey(seed, key, smear, j) {
   seed += '';                         // Ensure the seed is a string
@@ -7508,27 +7508,27 @@ numeric.svd= function svd(A) {
 	var j=0;
 	var k=0;
 	var l=0;
-	
+
 	var u= numeric.clone(A);
 	var m= u.length;
-	
+
 	var n= u[0].length;
-	
+
 	if (m < n) throw "Need more rows than columns"
-	
+
 	var e = new Array(n);
 	var q = new Array(n);
 	for (i=0; i<n; i++) e[i] = q[i] = 0.0;
 	var v = numeric.rep([n,n],0);
 //	v.zero();
-	
+
  	function pythag(a,b)
  	{
 		a = Math.abs(a)
 		b = Math.abs(b)
 		if (a > b)
 			return a*Math.sqrt(1.0+(b*b/a/a))
-		else if (b == 0.0) 
+		else if (b == 0.0)
 			return a
 		return b*Math.sqrt(1.0+(a*a/b/b))
 	}
@@ -7542,18 +7542,18 @@ numeric.svd= function svd(A) {
 	var y= 0.0;
 	var z= 0.0;
 	var s= 0.0;
-	
+
 	for (i=0; i < n; i++)
-	{	
+	{
 		e[i]= g;
 		s= 0.0;
 		l= i+1;
-		for (j=i; j < m; j++) 
+		for (j=i; j < m; j++)
 			s += (u[j][i]*u[j][i]);
 		if (s <= tolerance)
 			g= 0.0;
 		else
-		{	
+		{
 			f= u[i][i];
 			g= Math.sqrt(s);
 			if (f >= 0.0) g= -g;
@@ -7562,21 +7562,21 @@ numeric.svd= function svd(A) {
 			for (j=l; j < n; j++)
 			{
 				s= 0.0
-				for (k=i; k < m; k++) 
+				for (k=i; k < m; k++)
 					s += u[k][i]*u[k][j]
 				f= s/h
-				for (k=i; k < m; k++) 
+				for (k=i; k < m; k++)
 					u[k][j]+=f*u[k][i]
 			}
 		}
 		q[i]= g
 		s= 0.0
-		for (j=l; j < n; j++) 
+		for (j=l; j < n; j++)
 			s= s + u[i][j]*u[i][j]
 		if (s <= tolerance)
 			g= 0.0
 		else
-		{	
+		{
 			f= u[i][i+1]
 			g= Math.sqrt(s)
 			if (f >= 0.0) g= -g
@@ -7584,35 +7584,35 @@ numeric.svd= function svd(A) {
 			u[i][i+1] = f-g;
 			for (j=l; j < n; j++) e[j]= u[i][j]/h
 			for (j=l; j < m; j++)
-			{	
+			{
 				s=0.0
-				for (k=l; k < n; k++) 
+				for (k=l; k < n; k++)
 					s += (u[j][k]*u[i][k])
-				for (k=l; k < n; k++) 
+				for (k=l; k < n; k++)
 					u[j][k]+=s*e[k]
-			}	
+			}
 		}
 		y= Math.abs(q[i])+Math.abs(e[i])
-		if (y>x) 
+		if (y>x)
 			x=y
 	}
-	
+
 	// accumulation of right hand gtransformations
 	for (i=n-1; i != -1; i+= -1)
-	{	
+	{
 		if (g != 0.0)
 		{
 		 	h= g*u[i][i+1]
-			for (j=l; j < n; j++) 
+			for (j=l; j < n; j++)
 				v[j][i]=u[i][j]/h
 			for (j=l; j < n; j++)
-			{	
+			{
 				s=0.0
-				for (k=l; k < n; k++) 
+				for (k=l; k < n; k++)
 					s += u[i][k]*v[k][j]
-				for (k=l; k < n; k++) 
+				for (k=l; k < n; k++)
 					v[k][j]+=(s*v[k][i])
-			}	
+			}
 		}
 		for (j=l; j < n; j++)
 		{
@@ -7623,13 +7623,13 @@ numeric.svd= function svd(A) {
 		g= e[i]
 		l= i
 	}
-	
+
 	// accumulation of left hand transformations
 	for (i=n-1; i != -1; i+= -1)
-	{	
+	{
 		l= i+1
 		g= q[i]
-		for (j=l; j < n; j++) 
+		for (j=l; j < n; j++)
 			u[i][j] = 0;
 		if (g != 0.0)
 		{
@@ -7647,7 +7647,7 @@ numeric.svd= function svd(A) {
 			for (j=i; j < m; j++) u[j][i] = 0;
 		u[i][i] += 1;
 	}
-	
+
 	// diagonalization of the bidiagonal form
 	prec= prec*x
 	for (k=n-1; k != -1; k+= -1)
@@ -7656,13 +7656,13 @@ numeric.svd= function svd(A) {
 		{	// test f splitting
 			var test_convergence = false
 			for (l=k; l != -1; l+= -1)
-			{	
+			{
 				if (Math.abs(e[l]) <= prec)
 				{	test_convergence= true
-					break 
+					break
 				}
 				if (Math.abs(q[l-1]) <= prec)
-					break 
+					break
 			}
 			if (!test_convergence)
 			{	// cancellation of e[l] if l>0
@@ -7670,7 +7670,7 @@ numeric.svd= function svd(A) {
 				s= 1.0
 				var l1= l-1
 				for (i =l; i<k+1; i++)
-				{	
+				{
 					f= s*e[i]
 					e[i]= c*e[i]
 					if (Math.abs(f) <= prec)
@@ -7681,13 +7681,13 @@ numeric.svd= function svd(A) {
 					c= g/h
 					s= -f/h
 					for (j=0; j < m; j++)
-					{	
+					{
 						y= u[j][l1]
 						z= u[j][i]
 						u[j][l1] =  y*c+(z*s)
 						u[j][i] = -y*s+(z*c)
-					} 
-				}	
+					}
+				}
 			}
 			// test f convergence
 			z= q[k]
@@ -7718,7 +7718,7 @@ numeric.svd= function svd(A) {
 			c= 1.0
 			s= 1.0
 			for (i=l+1; i< k+1; i++)
-			{	
+			{
 				g= e[i]
 				y= q[i]
 				h= s*g
@@ -7732,7 +7732,7 @@ numeric.svd= function svd(A) {
 				h= y*s
 				y= y*c
 				for (j=0; j < n; j++)
-				{	
+				{
 					x= v[j][i-1]
 					z= v[j][i]
 					v[j][i-1] = x*c+z*s
@@ -7755,17 +7755,17 @@ numeric.svd= function svd(A) {
 			e[l]= 0.0
 			e[k]= f
 			q[k]= x
-		} 
+		}
 	}
-		
+
 	//vt= transpose(v)
 	//return (u,q,vt)
-	for (i=0;i<q.length; i++) 
+	for (i=0;i<q.length; i++)
 	  if (q[i] < prec) q[i] = 0
-	  
-	//sort eigenvalues	
+
+	//sort eigenvalues
 	for (i=0; i< n; i++)
-	{	 
+	{
 	//writeln(q)
 	 for (j=i-1; j >= 0; j--)
 	 {
@@ -7779,11 +7779,11 @@ numeric.svd= function svd(A) {
 	   for(k=0;k<v.length;k++) { temp = v[k][i]; v[k][i] = v[k][j]; v[k][j] = temp; }
 //	   u.swapCols(i,j)
 //	   v.swapCols(i,j)
-	   i = j	   
+	   i = j
 	  }
-	 }	
+	 }
 	}
-	
+
 	return {U:u,S:q,V:v}
 };
 
@@ -7799,12 +7799,12 @@ var jsfeat=jsfeat||{REVISION:"ALPHA"};self.Int32Array=self.Int32Array||Array;sel
 // requires jsfeat
 
 var jsfeat_face = function(image) {
-  
+
   var img_u8,work_canvas,work_ctx,ii_sum,ii_sqsum,ii_tilted,edg;
-  
+
   var w = image.width;
   var h = image.height;
-  
+
   if (image.tagName == 'VIDEO' || image.tagName == 'IMG') {
     work_canvas = document.createElement('canvas');
     work_canvas.height = h;
@@ -7813,32 +7813,32 @@ var jsfeat_face = function(image) {
   } else if (image.tagName == 'CANVAS') {
     work_ctx = image.getContext('2d');
   }
-  
+
   img_u8 = new jsfeat.matrix_t(w, h, jsfeat.U8_t | jsfeat.C1_t);
   ii_sum = new Int32Array((w+1)*(h+1));
   ii_sqsum = new Int32Array((w+1)*(h+1));
   ii_tilted = new Int32Array((w+1)*(h+1));
-  
+
   var classifier = jsfeat.haar.frontalface;
-  
+
   this.findFace = function () {
     if (image.tagName == 'VIDEO' || image.tagName == 'IMG') {
       work_ctx.drawImage(image, 0, 0);
-    } 
+    }
     var imageData = work_ctx.getImageData(0, 0, w, h);
-                  
+
     jsfeat.imgproc.grayscale(imageData.data, img_u8.data);
-    
+
     jsfeat.imgproc.equalize_histogram(img_u8, img_u8);
-    
+
     jsfeat.imgproc.compute_integral_image(img_u8, ii_sum, ii_sqsum, null);
 
     var rects = jsfeat.haar.detect_multi_scale(ii_sum, ii_sqsum, ii_tilted, null, img_u8.cols, img_u8.rows, classifier, 1.15, 2);
-    
+
     rects = jsfeat.haar.group_rectangles(rects, 1);
-    
+
     var rl = rects.length;
-    
+
     if (rl > 0) {
       var best = rects[0];
       for (var i = 1;i < rl;i++) {
@@ -7853,7 +7853,7 @@ var jsfeat_face = function(image) {
       return false;
     }
   }
-  
+
 }
 "use strict";
 /*
@@ -7868,10 +7868,10 @@ var jsfeat_face = function(image) {
  *     if this is set to false, we assume all channels are equal and only grab values from red channel
  *
  * @author auduno / github.com/auduno
- */ 
+ */
 
 function mosseFilter(params) {
-    
+
     var _filter, _top, _bottom;
     var _fft;
     var _w,_h;
@@ -7879,12 +7879,12 @@ function mosseFilter(params) {
     var _arrlen;
     var _cc;
     var _image_array;
-    
+
     this.psr_prev = undefined;
     this.peak_prev = undefined;
     var peak = 0.0;
     var updateable = false;
-    
+
     if (!params) params = {};
     // setup of canvas for drawing responses, if given
     if (params.drawResponse === undefined) {
@@ -7899,7 +7899,7 @@ function mosseFilter(params) {
     if (params.psrThreshold === undefined) params.psrThreshold = 10;
     if (params.eta === undefined) params.eta = 0.10;
     if (params.convertToGrayscale === undefined) params.convertToGrayscale = true;
-    
+
     this.load = function(filter) {
         // initialize filter width and height
         _w = filter.width;
@@ -7912,11 +7912,11 @@ function mosseFilter(params) {
           _top = [filter.top.real, filter.top.imag];
           _bottom = [filter.bottom.real, filter.bottom.imag];
         }
-        
+
         // initialize fft to given width
         _fft = new FFT();
         _fft.init(filter.width);
-        
+
         // set up temporary variables
         if(typeof Float64Array !== 'undefined') {
             _im_part = new Float64Array(_arrlen);
@@ -7930,13 +7930,13 @@ function mosseFilter(params) {
         canvas.setAttribute('height', _h);
         _cc = canvas.getContext('2d');
     }
-    
+
     this.init = function(w,h) {
         // initialize filter width and height for a blank filter
         _w = w;
         _h = h;
         _arrlen = _w*_h;
-        
+
         _filter = [[],[]];
         _top = [[],[]];
         _bottom = [[],[]];
@@ -7949,11 +7949,11 @@ function mosseFilter(params) {
             _bottom[1][i] = 0;
         }
         updateable = true;
-        
+
         // initialize fft to given width
         _fft = new FFT();
         _fft.init(w);
-        
+
         // set up temporary variables
         if(typeof Float64Array !== 'undefined') {
             _im_part = new Float64Array(_arrlen);
@@ -7965,32 +7965,32 @@ function mosseFilter(params) {
         canvas.setAttribute('height', _h);
         _cc = canvas.getContext('2d');
     }
-    
+
     // fft function
     this.fft = function(array) {
         // not in-place
-        
+
         var cn = new Array(_arrlen);
         for (var i = 0;i < _arrlen;i++) {
           cn[i] = 0.0;
         }
-        
+
         _fft.fft2d(array,cn)
         return [array, cn];
     }
-    
+
     // fft function
     this.fft_inplace = function(array) {
         // in-place
-        
+
         for (var i = 0;i < _arrlen;i++) {
           _im_part[i] = 0.0;
         }
-        
+
         _fft.fft2d(array,_im_part)
         return [array, _im_part];
     }
-    
+
     this.ifft = function(rn, cn) {
         // in-place
         _fft.ifft2d(rn, cn);
@@ -8016,7 +8016,7 @@ function mosseFilter(params) {
                 }
             }
         }
-        
+
         // subtract values around peak
         for (var x = -5;x < 6;x++) {
             for (var y = -5;y < 6;y++) {
@@ -8027,41 +8027,41 @@ function mosseFilter(params) {
                 }
             }
         }
-        
+
         var mean = sum/array.length;
         var sd = Math.sqrt((sdo/array.length)-(mean*mean));
-        
+
         // get mean/variance of output around peak
         var psr = (max-mean)/sd;
         return psr;
     }
-    
+
     this.getResponse = function(imageData) {
         // in-place
-        
+
         // preprocess
         var prepImage = preprocess(imageData);
         prepImage = cosine_window(prepImage);
-        
+
         // filter
         var res = this.fft_inplace(prepImage);
-        
+
         // elementwise multiplication with filter
         complex_mult_inplace(res, _filter);
-        
+
         // do inverse 2d fft
         var filtered = this.ifft(res[0],res[1]);
         return filtered;
     }
-    
+
     this.track = function(input, left, top, width, height, updateFilter, gaussianPrior, calcPSR) {
         // finds position of filter in input image
-        
+
         if (!_filter) {
             console.log("Mosse-filter needs to be initialized or trained before starting tracking.");
             return false;
         }
-        
+
         if (input.tagName == "VIDEO" || input.tagName == "IMG") {
             // scale selection according to original source image
             var videoLeft = Math.round((left/input.width)*input.videoWidth);
@@ -8072,40 +8072,40 @@ function mosseFilter(params) {
         } else if (input.tagName == "CANVAS") {
             _cc.drawImage(input, left, top, width, height, 0, 0, _w, _h);
         }
-        
+
         var image = _cc.getImageData(0,0,_w,_h);
         var id = image.data;
-        
+
         if (params.convertToGrayscale) {
             // convert to grayscale
             for (var i = 0;i < _arrlen;i++) {
                 _image_array[i] = id[(4*i)]*0.3;
                 _image_array[i] += id[(4*i)+1]*0.59;
                 _image_array[i] += id[(4*i)+2]*0.11;
-            } 
+            }
         } else {
             // use only one channel
             for (var i = 0;i < _arrlen;i++) {
                 _image_array[i] = id[(4*i)];
-            } 
+            }
         }
-        
+
         // preprocess
         var prepImage = preprocess(_image_array);
         prepImage = cosine_window(prepImage);
-        
+
         // filter
         var res = this.fft_inplace(prepImage);
         // elementwise multiplication with filter
         var nures = complex_mult(res, _filter);
         // do inverse 2d fft
         var filtered = this.ifft(nures[0],nures[1]);
-        
+
         // find max and min
         var max = 0;
         var min = 0;
         var maxpos = [];
-        
+
         //method using centered gaussian prior
         if (gaussianPrior) {
             var prior, dx, dy;
@@ -8138,7 +8138,7 @@ function mosseFilter(params) {
             }
         }
         this.peak_prev = max;
-        
+
         if (params.drawResponse) {
             // draw response
             var diff = max-min;
@@ -8161,11 +8161,11 @@ function mosseFilter(params) {
             dcc.putImageData(psci, 0, 0);
             responseContext.drawImage(dc, left, top, width, width);
         }
-        
+
         if (calcPSR) {
           this.psr_prev = this.psr(filtered);
         }
-        
+
         if (updateFilter) {
             if (!updateable) {
                 console.log("The loaded filter does not support updating. Ignoring parameter 'updateFilter'.");
@@ -8175,7 +8175,7 @@ function mosseFilter(params) {
                 } else {
                   var psr = this.psr(filtered);
                 }
-                
+
                 if (psr > params.psrThreshold) {
                     // create target
                     var target = [];
@@ -8186,15 +8186,15 @@ function mosseFilter(params) {
                             target[(y*_w)+x] = Math.exp(-(((x-nux)*(x-nux))+((y-nuy)*(y-nuy)))/(2*2));
                         }
                     }
-                    
+
                     //fft target
                     target = this.fft(target);
-                    
+
                     // create filter
                     var res_conj = complex_conj(res);
                     var fuTop = complex_mult(target,res_conj);
                     var fuBottom = complex_mult(res,res_conj);
-                    
+
                     // add up
                     var eta = params.eta;
                     for (var i = 0;i < _arrlen;i++) {
@@ -8203,19 +8203,19 @@ function mosseFilter(params) {
                         _bottom[0][i] = eta*fuBottom[0][i] + (1-eta)*_bottom[0][i];
                         _bottom[1][i] = eta*fuBottom[1][i] + (1-eta)*_bottom[1][i];
                     }
-                    
+
                     _filter = complex_div(_top,_bottom);
                 }
             }
         }
-        
+
         /*if (psr < 5) {
-          maxpos = [_w/2,_h/2]; 
+          maxpos = [_w/2,_h/2];
         }*/
-        
+
         maxpos[0] = maxpos[0]*(width/_w);
         maxpos[1] = maxpos[1]*(width/_h);
-        
+
         // check if output is strong enough
         // if not, return false?
         if (max < 0) {
@@ -8224,14 +8224,14 @@ function mosseFilter(params) {
           return maxpos;
         }
     }
-    
+
     this.train = function(input, left, top, width, height) {
-        
+
         if (!updateable) {
           console.log("The loaded filter does not support updating. Unable to do training.");
           return false;
         }
-        
+
         if (input.tagName == "VIDEO" || input.tagName == "IMG") {
             // scale selection according to original source image
             var videoLeft = Math.round((left/input.width)*input.videoWidth);
@@ -8242,21 +8242,21 @@ function mosseFilter(params) {
         } else if (input.tagName == "CANVAS") {
             _cc.drawImage(input, left, top, width, height, 0, 0, _w, _h);
         }
-        
+
         var image = _cc.getImageData(0,0,_w,_h);
         var id = image.data;
-         
+
         // convert to grayscale
         for (var i = 0;i < _arrlen;i++) {
             _image_array[i] = id[(4*i)]*0.3;
             _image_array[i] += id[(4*i)+1]*0.59;
             _image_array[i] += id[(4*i)+2]*0.11;
         }
-        
+
         // preprocess
         var prepImage = preprocess(_image_array);
         prepImage = cosine_window(prepImage);
-        
+
         // create target
         var target = [];
         var nux = _w/2;
@@ -8266,17 +8266,17 @@ function mosseFilter(params) {
                 target[(y*_w)+x] = Math.exp(-(((x-nux)*(x-nux))+((y-nuy)*(y-nuy)))/(2*2));
             }
         }
-        
+
         //fft target
         target = this.fft(target);
-        
+
         // filter
         var res = this.fft(prepImage);
         // create filter
         var res_conj = complex_conj(res);
         var fuTop = complex_mult(target,res_conj);
         var fuBottom = complex_mult(res,res_conj);
-        
+
         // add up
         var eta = params.eta;
         for (var i = 0;i < _arrlen;i++) {
@@ -8285,27 +8285,27 @@ function mosseFilter(params) {
             _bottom[0][i] = eta*fuBottom[0][i] + (1-eta)*_bottom[0][i];
             _bottom[1][i] = eta*fuBottom[1][i] + (1-eta)*_bottom[1][i];
         }
-        
+
         _filter = complex_div(_top,_bottom);
-        
+
         return true;
     }
-    
+
     var preprocess = function(array) {
         // in-place
-        
+
         // log adjusting
         for (var i = 0;i < _arrlen;i++) {
           array[i] = Math.log(array[i]+1);
         }
-        
+
         // normalize to mean 0 and norm 1
         var mean = 0;
         for (var i = 0;i < _arrlen;i++) {
           mean += array[i];
         }
         mean /= _arrlen;
-        
+
         for (var i = 0;i < _arrlen;i++) {
           array[i] -= mean;
         }
@@ -8317,10 +8317,10 @@ function mosseFilter(params) {
         for (var i = 0;i < _arrlen;i++) {
           array[i] /= norm;
         }
-        
+
         return array;
     }
-    
+
     var cosine_window = function(array) {
         // calculate rect cosine window (in-place)
         var pos = 0;
@@ -8333,10 +8333,10 @@ function mosseFilter(params) {
                 pos++;
             }
         }
-        
+
         return array;
     }
-    
+
     var complex_mult = function(cn1, cn2) {
         // not in-place
         var re_part = new Array(_w);
@@ -8348,7 +8348,7 @@ function mosseFilter(params) {
         }
         return nucn;
     }
-    
+
     var complex_mult_inplace = function(cn1, cn2) {
         // in-place
         var temp1, temp2;
@@ -8359,7 +8359,7 @@ function mosseFilter(params) {
             cn1[1][r] = temp2;
         }
     }
-    
+
     var complex_conj = function(cn) {
         // not in-place (TODO)
         var nucn = [[],[]];
@@ -8369,7 +8369,7 @@ function mosseFilter(params) {
         }
         return nucn;
     }
-    
+
     var complex_div = function(cn1, cn2) {
         // not in-place (TODO)
         var nucn = [[],[]];
@@ -8384,18 +8384,18 @@ function mosseFilter(params) {
 /**
  * Fast Fourier Transform
  * 1D-FFT/IFFT, 2D-FFT/IFFT (radix-2)
- * 
+ *
  * @author ryo / github.com/wellflat
  * Based on https://github.com/wellflat/jslib with some tiny optimizations
  */
 
 function FFT() {
-  
+
   var _n = 0,          // order
       _bitrev = null,  // bit reversal table
       _cstb = null;    // sin/cos table
   var _tre, _tim;
-  
+
   this.init = function (n) {
     if(n !== 0 && (n & (n - 1)) === 0) {
       _n = n;
@@ -8406,12 +8406,12 @@ function FFT() {
       throw new Error("init: radix-2 required");
     }
   }
-    
+
   // 1D-FFT
   this.fft1d = function (re, im) {
     fft(re, im, 1);
   }
-    
+
   // 1D-IFFT
   this.ifft1d = function (re, im) {
     var n = 1/_n;
@@ -8421,7 +8421,7 @@ function FFT() {
       im[i] *= n;
     }
   }
-  
+
   // 2D-FFT
   this.fft2d = function (re, im) {
     var i = 0;
@@ -8453,7 +8453,7 @@ function FFT() {
       }
     }
   }
-  
+
   // 2D-IFFT
   this.ifft2d = function (re, im) {
     var i = 0;
@@ -8485,7 +8485,7 @@ function FFT() {
       }
     }
   }
-  
+
   // core operation of FFT
   function fft(re, im, inv) {
     var d, h, ik, m, tmp, wr, wi, xr, xi,
@@ -8522,7 +8522,7 @@ function FFT() {
       }
     }
   }
-  
+
   // set variables
   function _setVariables() {
     if(typeof Uint8Array !== 'undefined') {
@@ -8540,7 +8540,7 @@ function FFT() {
       _tim = new Array(_n*_n);
     }
   }
-  
+
   // make bit reversal table
   function _makeBitReversal() {
     var i = 0,
@@ -8557,7 +8557,7 @@ function FFT() {
       _bitrev[i] = j;
     }
   }
-  
+
   // make trigonometric function table
   function _makeCosSinTable() {
     var n2 = _n >> 1,

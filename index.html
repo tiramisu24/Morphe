@@ -68,19 +68,16 @@
 			<div class="demos">
 				<div class="instructions">
 					<div class="instruction-header">
-						<h3 > <i>How to use</i>  </h3>
+						<h3 > <i>Instructions</i>  </h3>
 					</div>
 					<div class="text">
-						<li>Click Start to play with demo picture</li>
-						<li>Click Upload Image, Switch to Video to use your own Media</li>
-						<li>If app, cannot find the image, please manually select the face by clicking
-								Manually Select and drawing the box</li>
-						<li>When you are satifisied with that the internet sees as your face, click Start applying makeup!</li>
+						<li>Click Start to launch demo</li>
+						<li>If automatic face detection fails, manually select the face</li>
+						<li>Click Start to begin applying makeup</li>
 						<li>Use the handy color wheel to pick your colors. Eyeshadow allows you to use two colors for gradient</li>
-						<li>Click the feature to indicate a change of color</li>
-						<li>Click again to apply color to picture</li>
+						<li>Click feature to apply makeup</li>
 						<li>Subsequent clicks will increase intensity and area of color!</li>
-						<li>You can clear the canvas by clicking the Wash Face or Cleansing Pad to remove part of makeup</li>
+						<li>You can clear the canvas by clicking the Clear all or Eraser </li>
 					</div>
 				</div>
 			</div>
@@ -91,22 +88,24 @@
 					<canvas id="image" width="450" height="500" ></canvas>
 					<canvas id="canvas" width="450" height="500"></canvas>
 
-					<video id="video" width="450" height="500" class = 'hide'preload="auto" loop>
+					<video id="video" width="450" height="340" class = 'hide'preload="auto" loop>
 					</video>
 				</div>
 
 				<div class="face-select-buttons" >
-					<button class="face-select" onclick="animateClean()">Start</button>
-					<button class="face-select" onclick="selectBox()">Manually Select Face</button>
+					<button class="face-select" onclick="demo()">Start</button>
+					<button class="face-select" onclick="uploadImage()">Manually Select Face</button>
 					<label for="files" class="face-select custom-upload">Upload Image</label>
 					<input type="file"  id="files" name="files[]" />
 
-					<button id ="start-button" onclick="switchToVideo()">Switch to video</button>
-					<button id ="start-button" onclick="startVideo()">Start Video</button>
+					<button id ="start-button" class= "face-select" onclick="switchToVideo()">Switch to video</button>
+					<button id ="start-button" class="face-select" onclick="startVideo()">Start Video</button>
 
 				</div>
 				<p id="convergence"></p>
-
+				<div class="">
+					<button class="face-select" onclick="unlockMakeUp()">Start Applying Makeup</button>
+				</div>
 				<div class="feature-select-buttons">
 					<button id = 'eyeshadow-button' class = 'feature-btns hide' onclick="applyEyeshadow()">Eyeshadow</button>
 					<button id = 'eyeliner-button' class = 'feature-btns hide' onclick="applyEyeliner()">Eyeliner</button>
@@ -124,11 +123,11 @@
 					<div class="color-form">
 						<div class="form-item">
 							<input type="text" id="color1" name="color1" class="colorwell hide" />
-							<label for="color" id="color1-label" class="hide">Color 1</label>
+							<label for="color" id="color1-label" class="hide">Inner Color</label>
 						</div>
 						<div class="form-item">
 							<input type="text" id="color2" name="color2" class="colorwell hide" />
-							<label for="color2" id="color2-label" class="hide">Color 2</label>
+							<label for="color2" id="color2-label" class="hide">Outer Color</label>
 						</div>
 					</div>
 				</form>
@@ -138,6 +137,9 @@
 
 
 		<script type="text/javascript" src="./js/features/select.js"></script>
+		<script type="text/javascript" src="./js/features/start_image.js"></script>
+		<script type="text/javascript" src="./js/features/start_video.js"></script>
+
 
 
 		<div class = "footer">
