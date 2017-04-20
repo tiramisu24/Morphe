@@ -66,6 +66,8 @@ function startImage(){
       document.getElementById('convergence').innerHTML = "CONVERGED";
       // document.getElementById('convergence').style.backgroundColor = "#00FF00";
 
+      $('#unlock-makeup').removeClass('hide');
+      $('#manually-select-face').removeClass('hide');
       $('#picker').removeClass('hide');
       $('#color1-label').removeClass('hide');
       $clr1.removeClass('hide')
@@ -79,8 +81,6 @@ function startImage(){
     if (pos) {
 
       ctrack.draw(canvas);
-
-
     }
   }
 
@@ -93,10 +93,7 @@ function startImage(){
     $('#image').imgAreaSelect({
       handles : true,
       onSelectEnd : function(img, selection) {
-        // create box
         var box = [selection.x1, selection.y1, selection.width, selection.height];
-        console.log(box);
-        // do fitting
         animate(box);
         $('#canvas').removeClass('hide');
       },
@@ -115,5 +112,6 @@ function uploadImage(){
 function unlockMakeUp(){
   ctx.clearRect(0,0, canvas.width, canvas.height);
   $('.feature-btns').removeClass('hide');
+  $('.face-select').addClass('hide');
 
 }

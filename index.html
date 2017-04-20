@@ -8,7 +8,6 @@
 		<link rel="stylesheet" type="text/css" href="./Main/style.css">
 		<link rel="stylesheet" href="./js/farbtastic/farbtastic.css" type="text/css" />
 
-		<!-- color picker -->
 		<script type="text/javascript" charset="utf-8">
 	   $(document).ready(function() {
 	     $('#demo').hide();
@@ -70,7 +69,7 @@
 					<div class="instruction-header">
 						<h3 > <i>Instructions</i>  </h3>
 					</div>
-					<div class="text">
+					<ul class="text">
 						<li>Click Start to launch demo</li>
 						<li>If automatic face detection fails, manually select the face</li>
 						<li>Click Start to begin applying makeup</li>
@@ -78,7 +77,7 @@
 						<li>Click feature to apply makeup</li>
 						<li>Subsequent clicks will increase intensity and area of color!</li>
 						<li>You can clear the canvas by clicking the Clear all or Eraser </li>
-					</div>
+					</ul>
 				</div>
 			</div>
 			<div id="content">
@@ -88,23 +87,23 @@
 					<canvas id="image" width="450" height="500" ></canvas>
 					<canvas id="canvas" width="450" height="500"></canvas>
 
-					<video id="video" width="450" height="340" class = 'hide'preload="auto" loop>
+					<video id="video" width="450" height="350" class = 'hide'preload="auto" loop>
 					</video>
 				</div>
 
 				<div class="face-select-buttons" >
-					<button class="face-select" onclick="demo()">Start</button>
-					<button class="face-select" onclick="uploadImage()">Manually Select Face</button>
-					<label for="files" class="face-select custom-upload">Upload Image</label>
+					<button class="face-select" onclick="demo()">start</button>
+					<label for="files" class="face-select custom-upload">upload image</label>
 					<input type="file"  id="files" name="files[]" />
-
-					<button id ="start-button" class= "face-select" onclick="switchToVideo()">Switch to video</button>
-					<button id ="start-button" class="face-select" onclick="startVideo()">Start Video</button>
+					<button id ="start-button" class= "face-select" onclick="switchToVideo()">switch to video</button>
 
 				</div>
-				<p id="convergence"></p>
+				<p id="convergence" class="face-select"></p>
 				<div class="">
-					<button class="face-select" onclick="unlockMakeUp()">Start Applying Makeup</button>
+					<button id ="start-button" class="face-select hide" onclick="startVideo()">start video</button>
+
+					<button id="manually-select-face" class="face-select hide" onclick="uploadImage()">Manually Select Face</button>
+					<button id='unlock-makeup' class="face-select hide" onclick="unlockMakeUp()">Start Applying Makeup</button>
 				</div>
 				<div class="feature-select-buttons">
 					<button id = 'eyeshadow-button' class = 'feature-btns hide' onclick="applyEyeshadow()">Eyeshadow</button>
@@ -112,8 +111,7 @@
 					<button id = 'lips-button' class = 'feature-btns hide' onclick="applyLips()">Lips</button>
 					<button id = 'eyebrows-button' class = 'feature-btns hide' onclick="applyEyebrows()">Eyebrows</button>
 					<button id = 'blush-button' class = 'feature-btns hide' onclick="applyBlush()">Blush</button>
-					<button id = 'clear-button' class = 'feature-btns hide' onclick="clearAll()">Wash Face</button>
-					<button id = 'clear-button' class = 'feature-btns hide' onclick="addEraser()">Makeup Wipe</button>
+
 
 				</div>
 			</div>
@@ -130,6 +128,8 @@
 							<label for="color2" id="color2-label" class="hide">Outer Color</label>
 						</div>
 					</div>
+					<button id = 'clear-all-button' class = 'feature-btns hide' onclick="clearAll()">Clear All</button>
+					<button id = 'clear-button' class = 'feature-btns hide' onclick="addEraser()">Eraser</button>
 				</form>
 			</div>
 		</div>

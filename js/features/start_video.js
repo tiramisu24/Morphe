@@ -1,28 +1,23 @@
 let vid = document.getElementById('video');
-// let canvas = document.getElementById('canvas');
-// let ctx = canvas.getContext('2d');
-// let makeup = [];
-// let pos, yOffset, xOffset, eyelinerPosL, eyelinerPosR,$clr1,$cl2,box;
-// let startVideo, drawloop;
+
 let startVideo;
 function switchToVideo(){
-
 
   clearAll();
   $('#video').removeClass('hide');
 
   $('#image').addClass('hide');
+  $('#unlock-makeup').removeClass('hide');
+  $('#start-video').removeClass('hide');
+  $('#picker').removeClass('hide');
+  $('#color1-label').removeClass('hide');
+  $clr1.removeClass('hide')
+
   ctrack = new clm.tracker({useWebGL : true});
   ctrack.init(pModel);
 
   navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
   window.URL = window.URL || window.webkitURL || window.msURL || window.mozURL;
-
-  // function enablestart() {
-  //   const startbutton = document.getElementById('startbutton');
-  //   startbutton.value = "start";
-  //   startbutton.disabled = null;
-  // }
 
   if (navigator.getUserMedia) {
     const videoSelector = {video : true};
@@ -51,7 +46,7 @@ function switchToVideo(){
     drawLoop();
   }
 
-  drawLoop =() => {
+  drawLoop = () => {
     requestAnimFrame(drawLoop);
     clearAll();
     pos = ctrack.getCurrentPosition()
