@@ -7,7 +7,7 @@ function switchToVideo(){
   $('#video').removeClass('hide');
 
   $('#image').addClass('hide');
-  $('#unlock-makeup').removeClass('hide');
+  $('.start-nav').addClass('hide');
   $('#start-video').removeClass('hide');
   $('#picker').removeClass('hide');
   $('#color1-label').removeClass('hide');

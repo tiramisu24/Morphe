@@ -27,6 +27,17 @@
 	   });
 	  </script>
 
+		<script>
+		  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+		  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+		  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+		  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+		  ga('create', 'UA-97417728-1', 'auto');
+		  ga('send', 'pageview');
+
+	</script>
+
 	</head>
 	<body>
 		<script src="./Main/ext_js/utils.js"></script>
@@ -92,25 +103,25 @@
 				</div>
 
 				<div class="face-select-buttons" >
-					<button class="face-select" onclick="demo()">start</button>
-					<label for="files" class="face-select custom-upload">upload image</label>
+					<button class="face-select start-nav" onclick="demo()">demo</button>
+					<label for="files" class="face-select start-nav custom-upload">upload image</label>
 					<input type="file"  id="files" name="files[]" />
-					<button id ="start-button" class= "face-select" onclick="switchToVideo()">switch to video</button>
+					<button id ="start-button" class= "face-select start-nav" onclick="switchToVideo()">start video</button>
 
 				</div>
 				<p id="convergence" class="face-select"></p>
 				<div class="">
-					<button id ="start-button" class="face-select hide" onclick="startVideo()">start video</button>
+					<button id ="start-video" class="face-select hide" onclick="startVideo()">apply makeup</button>
 
-					<button id="manually-select-face" class="face-select hide" onclick="uploadImage()">Manually Select Face</button>
-					<button id='unlock-makeup' class="face-select hide" onclick="unlockMakeUp()">Start Applying Makeup</button>
+					<button id="manually-select-face" class="face-select hide" onclick="uploadImage()">manually select face</button>
+					<button id='unlock-makeup' class="face-select hide" onclick="unlockMakeUp()">applying Makeup</button>
 				</div>
 				<div class="feature-select-buttons">
-					<button id = 'eyeshadow-button' class = 'feature-btns hide' onclick="applyEyeshadow()">Eyeshadow</button>
-					<button id = 'eyeliner-button' class = 'feature-btns hide' onclick="applyEyeliner()">Eyeliner</button>
-					<button id = 'lips-button' class = 'feature-btns hide' onclick="applyLips()">Lips</button>
-					<button id = 'eyebrows-button' class = 'feature-btns hide' onclick="applyEyebrows()">Eyebrows</button>
-					<button id = 'blush-button' class = 'feature-btns hide' onclick="applyBlush()">Blush</button>
+					<button id = 'eyeshadow-button' class = 'feature-btns hide' onclick="applyEyeshadow()">eyeshadow</button>
+					<button id = 'eyeliner-button' class = 'feature-btns hide' onclick="applyEyeliner()">eyeliner</button>
+					<button id = 'lips-button' class = 'feature-btns hide' onclick="applyLips()">lips</button>
+					<button id = 'eyebrows-button' class = 'feature-btns hide' onclick="applyEyebrows()">eyebrows</button>
+					<button id = 'blush-button' class = 'feature-btns hide' onclick="applyBlush()">blush</button>
 
 
 				</div>
