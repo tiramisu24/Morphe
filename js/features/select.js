@@ -1,3 +1,5 @@
+let moves = {}
+
 // const cc = document.getElementById('image').getContext('2d');
 // const vid = document.getElementById('video');
 // const canvas = document.getElementById('canvas');

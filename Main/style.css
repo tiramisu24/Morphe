@@ -52,18 +52,29 @@ p{
 	width: 25vw;
 }
 .custom-upload{
-	background-color: grey;
-	 font: 11px system-ui;
+	font: 11px system-ui;
+	box-sizing: border-box;
+	text-align: center;
+
 }
 .face-select {
-	margin: 10px;
+	margin: 10px 20px;
 	padding: 5px 15px;
 	font-size: 1.5em;
 	color: white;
 	background-color: grey;
 	font-style: italic;
-	width: 100%;
+	width: 6.2em;
 
+}
+.start-nav{
+	width: 300px;
+}
+.face-select-buttons{
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
 }
 
 .feature-btns{

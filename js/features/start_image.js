@@ -12,7 +12,7 @@ img.src = './media/no_makeup.jpg';
 let animate, ImageEventListeners, drawLoop, selectBox, ctrack
 
 const regExp = /\(([^)]+)\)/;
-const makeup = [];
+const makeup = {};
 let pos, yOffset, xOffset, eyelinerPosL, eyelinerPosR,box;
 $clr1 = $('#color1');
 $clr2 = $('#color2');

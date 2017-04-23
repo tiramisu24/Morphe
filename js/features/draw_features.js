@@ -2,8 +2,8 @@
 function applyEyebrows(){
   $clr2.addClass('hide');
   $('#color2-label').addClass('hide');
-
-  drawEyebrows(pos.slice(15,19),pos.slice(19,23),canvas, yOffset, xOffset, selectColor($clr1.css('background-color')));
+  moves["eyebrows"] = selectColor($clr1.css('background-color'))
+  drawEyebrows(pos.slice(15,19),pos.slice(19,23),canvas, yOffset, xOffset, moves["eyebrows"]);
 }
 function applyEyeshadow(){
   $clr2.removeClass('hide');
@@ -28,7 +28,7 @@ function applyBlush(){
   $clr2.removeClass('hide');
   $('#color2-label').removeClass('hide');
 
-  drawBlush(pos, canvas, yOffset, selectColor($clr1.css('background-color'),0.3));
+  drawBlush(pos, canvas, yOffset, selectColor($clr1.css('background-color'),0.1));
 }
 
 function applyHighlight(){
@@ -44,7 +44,6 @@ function clearAll(){
 
 
 function selectColor(color, opacity = 0.5){
-  console.log(color);
   const matches = regExp.exec(color);
 
   if(matches[1] === '255, 255, 255' || color === 'rgba(0, 0, 0, 0)'){
