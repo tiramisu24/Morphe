@@ -30,31 +30,53 @@ function applyEyeshadowVideo(){
 }
 
 function applyEyeliner(){
-  $clr2.addClass('hide');
-  $('#color2-label').addClass('hide');
-
   drawEyeliner(eyelinerPosL,eyelinerPosR, canvas, yOffset, xOffset, selectColor($clr1.css('background-color'),1));
 }
-function applyLips(){
-  $clr2.removeClass('hide');
-  $('#color2-label').removeClass('hide');
 
+function applyEyelinerVideo(){
+  $clr2.addClass('hide');
+  $('#color2-label').addClass('hide');
+  moves["eyeliner"] = selectColor($clr1.css('background-color'))
+  if (isVideo){
+    applyFcns['eyeliner'] = applyEyeliner;
+  }else {
+    applyEyeliner();
+  }
+}
+function applyLips(){
   drawLips(pos.slice(44,62),canvas, selectColor($clr1.css('background-color'),0.3));
+}
+function applyLipsVideo(){
+  $clr2.addClass('hide');
+  $('#color2-label').addClass('hide');
+  moves["lips"] = selectColor($clr1.css('background-color'))
+  if (isVideo){
+    applyFcns['lips'] = applyLips;
+  }else {
+    applyLips();
+  }
 }
 
 function applyBlush(){
-  $clr2.removeClass('hide');
-  $('#color2-label').removeClass('hide');
-
   drawBlush(pos, canvas, yOffset, selectColor($clr1.css('background-color'),0.3));
 }
-
-function applyHighlight(){
+function applyBlushVideo(){
   $clr2.addClass('hide');
   $('#color2-label').addClass('hide');
-
-  drawHighlight([pos[33], pos[41], pos[62]], canvas, xOffset, selectColor($clr1.css('background-color')));
+  moves["eyebrows"] = selectColor($clr1.css('background-color'))
+  if (isVideo){
+    applyFcns['eyebrows'] = applyBlush;
+  }else {
+    applyBlush();
+  }
 }
+
+// function applyHighlight(){
+//   $clr2.addClass('hide');
+//   $('#color2-label').addClass('hide');
+//
+//   drawHighlight([pos[33], pos[41], pos[62]], canvas, xOffset, selectColor($clr1.css('background-color')));
+// }
 
 function clearAll(){
   console.log("clearall");
