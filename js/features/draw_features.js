@@ -30,13 +30,13 @@ function applyEyeshadowVideo(){
 }
 
 function applyEyeliner(){
-  drawEyeliner(eyelinerPosL,eyelinerPosR, canvas, yOffset, xOffset, selectColor($clr1.css('background-color'),1));
+  drawEyeliner(eyelinerPosL,eyelinerPosR, canvas, yOffset, xOffset, moves["eyeliner"]);
 }
 
 function applyEyelinerVideo(){
   $clr2.addClass('hide');
   $('#color2-label').addClass('hide');
-  moves["eyeliner"] = selectColor($clr1.css('background-color'))
+  moves["eyeliner"] = selectColor($clr1.css('background-color'),0.5)
   if (isVideo){
     applyFcns['eyeliner'] = applyEyeliner;
   }else {
@@ -44,12 +44,12 @@ function applyEyelinerVideo(){
   }
 }
 function applyLips(){
-  drawLips(pos.slice(44,62),canvas, selectColor($clr1.css('background-color'),0.3));
+  drawLips(pos.slice(44,62),canvas, moves["lips"]);
 }
 function applyLipsVideo(){
   $clr2.addClass('hide');
   $('#color2-label').addClass('hide');
-  moves["lips"] = selectColor($clr1.css('background-color'))
+  moves["lips"] = selectColor($clr1.css('background-color'),0.3)
   if (isVideo){
     applyFcns['lips'] = applyLips;
   }else {
@@ -58,14 +58,14 @@ function applyLipsVideo(){
 }
 
 function applyBlush(){
-  drawBlush(pos, canvas, yOffset, selectColor($clr1.css('background-color'),0.3));
+  drawBlush(pos, canvas, yOffset, moves["blush"]);
 }
 function applyBlushVideo(){
   $clr2.addClass('hide');
   $('#color2-label').addClass('hide');
-  moves["eyebrows"] = selectColor($clr1.css('background-color'))
+  moves["blush"] = selectColor($clr1.css('background-color'),0.3)
   if (isVideo){
-    applyFcns['eyebrows'] = applyBlush;
+    applyFcns['blush'] = applyBlush;
   }else {
     applyBlush();
   }
