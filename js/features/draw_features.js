@@ -1,9 +1,14 @@
 
+let applyFcns = []
+
 function applyEyebrows(){
   $clr2.addClass('hide');
   $('#color2-label').addClass('hide');
   moves["eyebrows"] = selectColor($clr1.css('background-color'))
   drawEyebrows(pos.slice(15,19),pos.slice(19,23),canvas, yOffset, xOffset, moves["eyebrows"]);
+}
+function applyEyebrowsVideo(){
+  applyFcns.push(applyEyebrows);
 }
 function applyEyeshadow(){
   $clr2.removeClass('hide');
@@ -28,7 +33,7 @@ function applyBlush(){
   $clr2.removeClass('hide');
   $('#color2-label').removeClass('hide');
 
-  drawBlush(pos, canvas, yOffset, selectColor($clr1.css('background-color'),0.1));
+  drawBlush(pos, canvas, yOffset, selectColor($clr1.css('background-color'),0.3));
 }
 
 function applyHighlight(){

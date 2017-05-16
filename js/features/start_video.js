@@ -1,5 +1,6 @@
 let vid = document.getElementById('video');
 
+
 let startVideo;
 function switchToVideo(){
 
@@ -52,12 +53,14 @@ function switchToVideo(){
     pos = ctrack.getCurrentPosition()
     if (pos) {
       setPos();
-
-      applyEyebrows();
-      applyBlush();
-      applyLips();
-      applyEyeliner();
-      applyEyeshadow();
+      for(let i = 0; i < applyFcns.length; i++){
+        applyFcns[i]();
+      }
+      // applyEyebrows();
+      // applyBlush();
+      // applyLips();
+      // applyEyeliner();
+      // applyEyeshadow();
     // ctrack.draw(canvas);
     }
   }
