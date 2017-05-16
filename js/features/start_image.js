@@ -67,7 +67,8 @@ function startImage(){
       // document.getElementById('convergence').style.backgroundColor = "#00FF00";
 
       $('#unlock-makeup').removeClass('hide');
-      $('#manually-select-face').removeClass('hide');
+      unlockMakeUp();
+      // $('#manually-select-face').removeClass('hide');
       $('#picker').removeClass('hide');
       $('#color1-label').removeClass('hide');
       $clr1.removeClass('hide')

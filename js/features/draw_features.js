@@ -39,6 +39,7 @@ function applyHighlight(){
 }
 
 function clearAll(){
+  console.log("clearall");
   ctx.clearRect(0, 0, 450, 500);
 }
 
