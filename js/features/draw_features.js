@@ -2,11 +2,11 @@
 let applyFcns = {}
 // let eyebrowColor;
 function applyEyebrows(){
-  $clr2.addClass('hide');
-  $('#color2-label').addClass('hide');
   drawEyebrows(pos.slice(15,19),pos.slice(19,23),canvas, yOffset, xOffset, moves["eyebrows"]);
 }
 function applyEyebrowsVideo(){
+  $clr2.addClass('hide');
+  $('#color2-label').addClass('hide');
   moves["eyebrows"] = selectColor($clr1.css('background-color'))
   if (isVideo){
     applyFcns['eyebrows'] = applyEyebrows;
@@ -15,9 +15,18 @@ function applyEyebrowsVideo(){
   }
 }
 function applyEyeshadow(){
+  drawEyeshadow(eyelinerPosL,eyelinerPosR, canvas, yOffset, xOffset, moves["eyeshadow1"], moves["eyeshadow2"]);
+}
+function applyEyeshadowVideo(){
   $clr2.removeClass('hide');
   $('#color2-label').removeClass('hide');
-  drawEyeshadow(eyelinerPosL,eyelinerPosR, canvas, yOffset, xOffset, selectColor($clr1.css('background-color')), selectColor($clr2.css('background-color')));
+  moves["eyeshadow1"] = selectColor($clr1.css('background-color'))
+  moves["eyeshadow2"] = selectColor($clr2.css('background-color'))
+  if (isVideo){
+    applyFcns['eyeshadow'] = applyEyeshadow;
+  }else {
+    applyEyeshadow();
+  }
 }
 
 function applyEyeliner(){
