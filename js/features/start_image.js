@@ -3,7 +3,7 @@ const baseCtx = document.getElementById('image').getContext('2d');
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 const img = new Image();
-
+let isVideo = false;
 img.onload = function() {
   baseCtx.drawImage(img,0,0,450,500);
 };

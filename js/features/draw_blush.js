@@ -1,3 +1,4 @@
+
 const drawBlush = (pos, canvas, yOffset, color) => {
   if(color === 'default'){
     color = "rgba(244,66,66,.1)";

@@ -3,7 +3,7 @@ let vid = document.getElementById('video');
 
 let startVideo;
 function switchToVideo(){
-
+  isVideo = true;
   clearAll();
   $('#video').removeClass('hide');
 
@@ -53,9 +53,9 @@ function switchToVideo(){
     pos = ctrack.getCurrentPosition()
     if (pos) {
       setPos();
-      for(let i = 0; i < applyFcns.length; i++){
-        applyFcns[i]();
-      }
+      Object.keys(applyFcns).forEach(function(key) {
+        applyFcns[key]();
+    });
       // applyEyebrows();
       // applyBlush();
       // applyLips();
