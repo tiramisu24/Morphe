@@ -5,7 +5,8 @@ const ctx = canvas.getContext('2d');
 const img = new Image();
 let isVideo = false;
 img.onload = function() {
-  baseCtx.drawImage(img,0,0,450,500);
+  baseCtx.drawImage(img,0,0,canvas.width, canvas.height);
+
 };
 img.src = './media/no_makeup.jpg';
 
@@ -77,7 +78,7 @@ function startImage(){
 
   drawLoop = () => {
     requestAnimFrame(drawLoop);
-    ctx.clearRect(0, 0, 450, 500);
+    ctx.clearRect(0,0, canvas.width, canvas.height);
     pos = ctrack.getCurrentPosition()
     if (pos) {
 
@@ -87,7 +88,7 @@ function startImage(){
 
   // manual selection of faces (with jquery imgareaselect plugin)
   selectBox = () => {
-    ctx.clearRect(0, 0, 450, 500);
+    ctx.clearRect(0,0, canvas.width, canvas.height);
     document.getElementById('convergence').innerHTML = "";
     ctrack.reset();
     $('#canvas').addClass('hide');
