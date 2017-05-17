@@ -157,6 +157,9 @@ p{
 	.demos{
 		display:none;
 	}
+	.start-nav{
+		width: 150px;
+	}
 }
 @media screen and (max-width: 500px) {
 
