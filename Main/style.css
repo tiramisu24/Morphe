@@ -88,17 +88,25 @@ body{
 	font-size: 1.5em;
 	background-color: black;
 }
+.header {
+  position: absolute;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  height: 70px;
+  width: 90%;
+  z-index: 5;
+	font-size: 2em;
+	background-color: grey;
+	padding: 0px 30px;
+	/*box-sizing: padding-box;*/
+}
 
-
-.footer{
-	margin-top: 10vh;
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
+.header-links{
 	font-size: 2em;
 	height: 5vh;
 	background-color: grey;
-	color: white;
 	padding: 0px 30px;
 
 }
