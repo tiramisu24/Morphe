@@ -24,6 +24,9 @@ a{
 p{
 	background-color: inherit !important;
 }
+body{
+	height: 90vh;
+}
 
 .main-content{
 	display: flex;
