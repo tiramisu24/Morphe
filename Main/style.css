@@ -21,6 +21,9 @@ a{
 	text-decoration: none;
 	color: inherit;
 }
+a:hover{
+	color: grey;
+}
 p{
 	background-color: inherit !important;
 }
@@ -94,22 +97,17 @@ body{
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
-  height: 70px;
-  width: 90%;
+  height: 60px;
+  width: 95%;
   z-index: 5;
-	font-size: 2em;
-	background-color: grey;
+	font-size: 1em;
 	padding: 0px 30px;
-	/*box-sizing: padding-box;*/
+}
+.links > a{
+	/*background-color: pink;*/
+	padding: 0px 10px;
 }
 
-.header-links{
-	font-size: 2em;
-	height: 5vh;
-	background-color: grey;
-	padding: 0px 30px;
-
-}
 .color-form{
 	display: flex;
 }
