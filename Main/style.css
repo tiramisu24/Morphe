@@ -1,5 +1,6 @@
 h1{
 	font-size: 5em;
+	margin-bottom: inherit;
 }
 button{
   -webkit-appearance: none;
