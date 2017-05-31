@@ -45,6 +45,7 @@ body{
 	padding: 15px;
 	border: 1px solid grey;
 	background-color: pink;
+	margin-top: 160px;
 
 }
 .instructions{
@@ -62,6 +63,8 @@ body{
 
 .color-picker{
 	width: 25vw;
+	margin-top: 150px;
+
 }
 .custom-upload{
 	font: 11px system-ui;
