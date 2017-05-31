@@ -31,7 +31,10 @@ p{
 body{
 	height: 90vh;
 }
-
+.title{
+	/*background-color: pink;*/
+	margin-bottom: 0px;
+}
 .main-content{
 	display: flex;
 	align-items: center;
