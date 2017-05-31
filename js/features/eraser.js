@@ -47,12 +47,6 @@ function addEraser() {
     mouseX=parseInt(e.offsetX);
     mouseY=parseInt(e.offsetY);
     if(isMouseDown){
-      // console.log("in eraser");
-
-      // ctx.globalCompositeOperation="source-over";
-      // ctx.moveTo(lastX,lastY);
-      // ctx.lineTo(mouseX,mouseY);
-      // ctx.stroke();
       ctx.beginPath();
       ctx.globalCompositeOperation="destination-out";
       ctx.arc(lastX,lastY,8,0,Math.PI*2,false);
