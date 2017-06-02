@@ -105,7 +105,7 @@ function startImage(){
 }
 function demo(){
   startImage();
-  animate([6, 42, 437, 437]);
+  animate([0, 0, canvas.width, canvas.height]);
 }
 function uploadImage(){
   startImage();
