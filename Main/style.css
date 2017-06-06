@@ -64,7 +64,7 @@ body{
 
 .color-picker{
 	width: 25vw;
-	margin-top: 150px;
+	/*margin-top: 260px;*/
 
 }
 .custom-upload{
@@ -85,6 +85,14 @@ body{
 }
 .start-nav{
 	width: 300px;
+}
+.wrapper{
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	/*background-color: blue;*/
+	height: 100%;
 }
 .face-select-buttons{
 	display: flex;

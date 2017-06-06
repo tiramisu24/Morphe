@@ -128,31 +128,34 @@
 				</div>
 			</div>
 			<div class="color-picker">
-				<div class="face-select-buttons" >
-					<button class="face-select start-nav" onclick="demo()">demo</button>
-					<label for="files" class="face-select start-nav custom-upload hide">upload image</label>
-					<input type="file"  id="files" name="files[]" />
-					<button id ="start-button" class= "face-select start-nav" onclick="switchToVideo()">webcam</button>
-				</div>
-
-				<form class="form-item">
-					<div id="picker" class="hide"></div>
-					<div class="color-form">
-						<div class="form-item">
-							<input type="text" id="color1" name="color1" class="colorwell hide" />
-							<label for="color" id="color1-label" class="hide">Inner Color</label>
-						</div>
-						<div class="form-item">
-							<input type="text" id="color2" name="color2" class="colorwell hide" />
-							<label for="color2" id="color2-label" class="hide">Outer Color</label>
-						</div>
+				<div class="wrapper">
+					<div class="face-select-buttons" >
+						<button class="face-select start-nav" onclick="demo()">demo</button>
+						<label for="files" class="face-select start-nav custom-upload hide">upload image</label>
+						<input type="file"  id="files" name="files[]" />
+						<button id ="start-button" class= "face-select start-nav" onclick="switchToVideo()">webcam</button>
 					</div>
 
-					<div class="clear-buttons">
-						<button type = 'button' id = 'clear-all-button' class = 'feature-btns hide' onclick="clearAll()">Clear All</button>
-						<button type = 'button' id = 'clear-button' class = 'feature-btns hide' onclick="addEraser()">Eraser</button>
-					</div>
-				</form>
+					<form class="form-item">
+						<div id="picker" class="hide"></div>
+						<div class="color-form">
+							<div class="form-item">
+								<input type="text" id="color1" name="color1" class="colorwell hide" />
+								<label for="color" id="color1-label" class="hide">Inner Color</label>
+							</div>
+							<div class="form-item">
+								<input type="text" id="color2" name="color2" class="colorwell hide" />
+								<label for="color2" id="color2-label" class="hide">Outer Color</label>
+							</div>
+						</div>
+
+						<div class="clear-buttons">
+							<button type = 'button' id = 'clear-all-button' class = 'feature-btns hide' onclick="clearAll()">Clear All</button>
+							<button type = 'button' id = 'clear-button' class = 'feature-btns hide' onclick="addEraser()">Eraser</button>
+						</div>
+					</form>
+			</div>
+
 			</div>
 		</div>
 
